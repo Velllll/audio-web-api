@@ -1,0 +1,11 @@
+.container {
+    display: flex;
+    height: 100%;
+    .vst-container {
+        width: 75vw;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        align-items: center;
+    }
+}

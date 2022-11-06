@@ -4,6 +4,7 @@ import { BehaviorSubject } from 'rxjs';
 export interface ISound {
   name: string;
   src: string;
+  pad?: number
 }
 
 @Injectable()
@@ -25,7 +26,7 @@ export class StoreService {
     {name: 'perc1', src: 'assets/percs/perc1.wav'},
   ]
   percs = new BehaviorSubject<ISound[]>(this.percsArr)
-
+  
   snaresArr: ISound[] = [
     {name: 'e', src: 'assets/snares/e.wav'},
   ]

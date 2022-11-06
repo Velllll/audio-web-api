@@ -1,1 +1,16 @@
-<p>pads works!</p>
+<div class="container">
+    <div class="settings">
+        <div class="volume">
+            Volume: <mat-slider displayValue value="50"></mat-slider>
+        </div>
+        <div class="name">
+            "pad name"
+        </div>
+    </div>
+    <div class="pads-container">
+        <div class="pads noselect" *ngFor="let pad of ['q', 'w', 'e', 'a', 's', 'd', 'z', 'x', 'c']">
+            {{pad}}
+        </div>
+    </div>
+    
+</div>

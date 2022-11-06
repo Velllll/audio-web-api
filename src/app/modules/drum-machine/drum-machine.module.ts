@@ -9,6 +9,7 @@ import { ScalesComponent } from './components/scales/scales.component';
 import {MatExpansionModule} from '@angular/material/expansion';
 import { StoreService } from './services/store/store.service';
 import {MatIconModule} from '@angular/material/icon';
+import {MatSliderModule} from '@angular/material/slider';
 
 @NgModule({
   declarations: [
@@ -21,7 +22,8 @@ import {MatIconModule} from '@angular/material/icon';
     CommonModule,
     DrumMachineRoutingModule,
     MatExpansionModule,
-    MatIconModule
+    MatIconModule,
+    MatSliderModule
   ],
   providers: [StoreService]
 })
