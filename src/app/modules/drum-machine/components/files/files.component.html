@@ -1,0 +1,73 @@
+<div class="container">
+    <div class="title">Samples</div>
+    <mat-accordion>
+        <!-- kiks -->
+        <mat-expansion-panel hideToggle>
+          <mat-expansion-panel-header>
+            <mat-panel-title>
+              Kiks
+            </mat-panel-title>
+          </mat-expansion-panel-header>
+          <div class="samples" *ngFor="let kick of kiks | async">
+            <div class="sample-info">
+                <button (click)="play(kick.src)">
+                    <mat-icon>play_arrow</mat-icon>
+                </button>
+                <span>{{kick.name}}</span>
+            </div>
+          </div>
+          
+        </mat-expansion-panel>
+        <!-- hats -->
+        <mat-expansion-panel hideToggle>
+            <mat-expansion-panel-header>
+              <mat-panel-title>
+                Hats
+              </mat-panel-title>
+            </mat-expansion-panel-header>
+  
+            <div class="samples" *ngFor="let hat of hats | async">
+                <div class="sample-info">
+                    <button (click)="play(hat.src)">
+                        <mat-icon>play_arrow</mat-icon>
+                    </button>
+                    <span>{{hat.name}}</span>
+                </div>
+            </div>
+        </mat-expansion-panel>
+        <!-- percs -->
+        <mat-expansion-panel hideToggle>
+            <mat-expansion-panel-header>
+              <mat-panel-title>
+                Percs
+              </mat-panel-title>
+            </mat-expansion-panel-header>
+  
+            <div class="samples" *ngFor="let perc of percs | async">
+                <div class="sample-info">
+                    <button (click)="play(perc.src)">
+                        <mat-icon>play_arrow</mat-icon>
+                    </button>
+                    <span>{{perc.name}}</span>
+                </div>
+            </div>
+        </mat-expansion-panel>
+        <!-- snares -->
+        <mat-expansion-panel hideToggle>
+            <mat-expansion-panel-header>
+              <mat-panel-title>
+                Snares
+              </mat-panel-title>
+            </mat-expansion-panel-header>
+  
+            <div class="samples" *ngFor="let snare of snares | async">
+                <div class="sample-info">
+                    <button (click)="play(snare.src)">
+                        <mat-icon>play_arrow</mat-icon>
+                    </button>
+                    <span>{{snare.name}}</span>
+                </div>
+            </div>
+        </mat-expansion-panel>
+    </mat-accordion>
+</div>
