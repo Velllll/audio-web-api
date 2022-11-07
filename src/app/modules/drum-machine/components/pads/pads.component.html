@@ -1,10 +1,13 @@
 <div class="container">
     <div class="settings" >
         <div class="info" *ngIf="currentPad$ | async as currentPad">
+            <div class="name pad-name">
+                Pad: {{currentPad.padName ? currentPad.padName : 'Select pad'}}
+            </div>
             <div class="volume">
                 Volume: <mat-slider displayValue value="50"></mat-slider>
             </div>
-            <div class="name">
+            <div class="name sample-name">
                 Sample: {{currentPad.sampleName ? currentPad.sampleName : 'Pad is empty'}}
             </div>
         </div>
@@ -14,7 +17,46 @@
             <div class="pad" (click)="palySample(pad.padName)">
                 {{pad.padName + ' ' + pad.sampleName}}
             </div>
+            <!-- background -->
+            <div class="background-pad">
+                <svg>
+                    <line x1="0" y1="100%" x2="3%" y2="0%" stroke="black" />
+                    <line x1="2%" y1="100%" x2="0%" y2="0%" stroke="black" />
+                    <line x1="0.5%" y1="96%" x2="0.5%" y2="2%" stroke="black" />
+        
+                    <line x1="2%" y1="96%" x2="100%" y2="97%" stroke="black" />
+                    <line x1="0.5%" y1="99%" x2="99%" y2="99%" stroke="black" />
+                    <line x1="0%" y1="100%" x2="100%" y2="98%" stroke="black" />
+        
+                    <line x1="0%" y1="0%" x2="100%" y2="8%" stroke="black" />
+                    <line x1="1%" y1="1%" x2="99%" y2="1%" stroke="black" />
+                    <line x1="0%" y1="2%" x2="99%" y2="0%" stroke="black" />
+                    
+                    <line x1="100%" y1="2%" x2="99%" y2="98%" stroke="black" />
+                    <line x1="98%" y1="2%" x2="99.8%" y2="100%" stroke="black" />
+                    <line x1="100%" y1="2%" x2="99.5%" y2="99%" stroke="black" />
+                </svg>
+            </div>
         </div>
     </div>
-    
+    <!-- background frame -->
+    <div class="background-container">
+        <svg>
+            <line x1="0" y1="99%" x2="1%" y2="0%" stroke="black" />
+            <line x1="1%" y1="99%" x2="0%" y2="0%" stroke="black" />
+            <line x1="0.5%" y1="96%" x2="0.5%" y2="2%" stroke="black" />
+
+            <line x1="0.5%" y1="98%" x2="99%" y2="99%" stroke="black" />
+            <line x1="0.5%" y1="99%" x2="99%" y2="99%" stroke="black" />
+            <line x1="0%" y1="99%" x2="98%" y2="98%" stroke="black" />
+
+            <line x1="0%" y1="0%" x2="99%" y2="2%" stroke="black" />
+            <line x1="1%" y1="1%" x2="99%" y2="1%" stroke="black" />
+            <line x1="0%" y1="2%" x2="99%" y2="0%" stroke="black" />
+            
+            <line x1="99.5%" y1="2%" x2="99%" y2="98%" stroke="black" />
+            <line x1="99%" y1="2%" x2="99.8%" y2="98%" stroke="black" />
+            <line x1="100%" y1="2%" x2="99.5%" y2="99%" stroke="black" />
+        </svg>
+    </div>
 </div>

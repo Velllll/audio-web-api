@@ -3,39 +3,58 @@
     height: 100%;
     overflow: scroll;
     padding: 15px;
-    box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.5);
+    position: relative;
     .title {
         line-height: 40px;
-        font-size: 25px;
+        font-size: 35px;
         text-align: center;
+        margin: 15px 0;
     }
     .mat-expansion-panel {
-        background-color: rgb(218, 168, 42);
-        color: rgb(255, 255, 255);
+        background-color: rgb(255, 255, 255);
+        color: rgb(0, 0, 0);
         box-shadow: none;
-
+        border: 1px solid black;
+        border-radius: 0;
         .mat-expansion-panel-header-title{
-            color: rgb(252, 252, 252);
+            color: rgb(0, 0, 0);
+            font-size: 25px;
         }
     }
     .samples {
         margin: 10px 0;
+        font-size: 20px;
+
         .sample-info {
             display: flex;
             align-items: center;
-            border: 1px solid white;
             padding: 3px;
             border-radius: 5px;
             
             .sample-name {
                 width: 80%;
                 margin-left: 10px;
+                padding: 5px 5px 5px 10px;
                 cursor: pointer;
+                position: relative;
+
+                .background-sample-name {
+                    height: 100%;
+                    width: 100%;
+                    position: absolute;
+                    top: 0;
+                    left: 0;
+                    z-index: 0;
+                    svg {
+                        height: 100%;
+                        width: 100%;
+                    }
+                }
             }
             button {
                 margin-right: 10px;
                 background-color: rgb(255, 255, 255);
-                color: rgb(218, 168, 42);
+                color: rgb(0, 0, 0);
                 border-radius: 50%;
                 display: flex;
                 justify-content: center;
@@ -44,6 +63,18 @@
             span {
                 font-size: 15px;
             }
+        }
+    }
+    .background-container {
+        height: 100%;
+        width: 100%;
+        position: absolute;
+        top: 0;
+        left: 0;
+        z-index: -10;
+        svg {
+            height: 100%;
+            width: 100%;
         }
     }
 }

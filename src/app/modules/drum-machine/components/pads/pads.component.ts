@@ -13,14 +13,13 @@ export class PadsComponent implements OnInit {
     map(obj => ([obj.q, obj.w, obj.e, obj.a, obj.s, obj.d, obj.z, obj.x, obj.c]))
   )
 
-  currentPad$ = new BehaviorSubject<IPad | null>(null)
+  currentPad$ = new BehaviorSubject<IPad>({padName: '', src: '', sampleName: ''})
 
   constructor(
     private store: StoreService
   ) { }
 
   ngOnInit(): void {
-    this.pads$.subscribe(console.log)
     combineLatest([fromEvent(window, 'keydown'), this.pads$]).subscribe(([e, pads]) => {
       const event: any = e
       pads.forEach(pad => {
