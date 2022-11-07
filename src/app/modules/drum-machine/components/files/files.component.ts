@@ -9,7 +9,7 @@ import { StoreService } from '../../services/store/store.service';
 })
 export class FilesComponent implements OnInit {
 
-  folders$ = this.store.folder$
+  folders = this.store.folder$.getValue()
   
   constructor(
     private store: StoreService
@@ -21,6 +21,10 @@ export class FilesComponent implements OnInit {
 
   play(src: string) {
     this.store.playSample(src)
+  }
+
+  appointToPad(sapmlesSrc: string, pad: string, sampleName: string) {
+    this.store.appointPad(sapmlesSrc, pad, sampleName)
   }
 
 }

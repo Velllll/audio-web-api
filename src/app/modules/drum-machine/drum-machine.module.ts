@@ -10,6 +10,7 @@ import {MatExpansionModule} from '@angular/material/expansion';
 import { StoreService } from './services/store/store.service';
 import {MatIconModule} from '@angular/material/icon';
 import {MatSliderModule} from '@angular/material/slider';
+import {MatMenuModule} from '@angular/material/menu';
 
 @NgModule({
   declarations: [
@@ -23,7 +24,8 @@ import {MatSliderModule} from '@angular/material/slider';
     DrumMachineRoutingModule,
     MatExpansionModule,
     MatIconModule,
-    MatSliderModule
+    MatSliderModule,
+    MatMenuModule
   ],
   providers: [StoreService]
 })

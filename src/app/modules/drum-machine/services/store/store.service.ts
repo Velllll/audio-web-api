@@ -2,7 +2,7 @@ import { Injectable } from '@angular/core';
 import { BehaviorSubject } from 'rxjs';
 
 export interface ISample {
-  name: string;
+  sampleName: string;
   src: string;
   sampleId: number;
   pad?: number
@@ -40,32 +40,32 @@ export class StoreService {
       folderID: 713298625,
       name: 'Kiks', 
       samples: [
-        {name: 'a', src: 'assets/kicks/a.wav', sampleId: 95720},
-        {name: 'b', src: 'assets/kicks/b.wav', sampleId: 720546 },
-        {name: 'c', src: 'assets/kicks/c.wav', sampleId: 95723 },
+        {sampleName: 'a', src: 'assets/kicks/a.wav', sampleId: 95720},
+        {sampleName: 'b', src: 'assets/kicks/b.wav', sampleId: 720546 },
+        {sampleName: 'c', src: 'assets/kicks/c.wav', sampleId: 95723 },
       ]
     },
     {
       folderID: 718625,
       name: 'Hats',
       samples: [
-        {name: 'grit hat', src: 'assets/hats/grit hat.wav', sampleId: 9574 },
-        {name: 'hat 1', src: 'assets/hats/hat 1.wav', sampleId: 9573 },
+        {sampleName: 'grit hat', src: 'assets/hats/grit hat.wav', sampleId: 9574 },
+        {sampleName: 'hat 1', src: 'assets/hats/hat 1.wav', sampleId: 9573 },
       ]
     },
     {
       folderID: 74325,
       name: 'Percs',
       samples: [
-        {name: 'perc1', src: 'assets/percs/perc1.wav', sampleId: 9572 },
+        {sampleName: 'perc1', src: 'assets/percs/perc1.wav', sampleId: 9572 },
       ]
     },
     {
       folderID: 712312345,
       name: 'Snares',
       samples: [
-        {name: 'e', src: 'assets/snares/e.wav', sampleId: 9571 },
-        {name: 'dilla snare - Part_1', src: 'assets/snares/dilla snare - Part_1.wav', sampleId: 9571345 },
+        {sampleName: 'e', src: 'assets/snares/e.wav', sampleId: 9571 },
+        {sampleName: 'dilla snare - Part_1', src: 'assets/snares/dilla snare - Part_1.wav', sampleId: 9571345 },
       ]
     }
   ])
@@ -128,5 +128,23 @@ export class StoreService {
   getPadInfo(padName: string): IPad {
     const pads: any = this.pads$.getValue()
     return pads[padName]
+  }
+
+  appointPad(sapmlesSrc: string, pad: string, sampleName: string) {
+    //need this couse this.pads[pad] does not work
+    const pads: any = this.pads$.getValue()
+    //if src don't appoint, appoint src
+    if(!pads[pad].src) {
+      this.pads$.next({
+        ...pads, 
+        [pad]: {
+          ...pads[pad], 
+          src: sapmlesSrc,
+          sampleName
+        }
+      })
+    } else {
+      console.log('this pad is full')
+    }
   }
 }

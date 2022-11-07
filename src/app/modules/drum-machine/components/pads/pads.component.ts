@@ -1,14 +1,17 @@
-import { Component, OnInit } from '@angular/core';
-import { BehaviorSubject, combineLatest, fromEvent, map } from 'rxjs';
+import { ChangeDetectionStrategy, Component, OnChanges, OnInit, SimpleChanges } from '@angular/core';
+import { BehaviorSubject, combineLatest, fromEvent, map, Observable } from 'rxjs';
 import { IPad, IPads, StoreService } from '../../services/store/store.service';
 
 @Component({
   selector: 'app-pads',
   templateUrl: './pads.component.html',
-  styleUrls: ['./pads.component.scss']
+  styleUrls: ['./pads.component.scss'],
+  changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class PadsComponent implements OnInit {
-  pads$ = new BehaviorSubject<IPad[]>([])
+  pads$: Observable<IPad[]> = this.store.pads$.pipe(
+    map(obj => ([obj.q, obj.w, obj.e, obj.a, obj.s, obj.d, obj.z, obj.x, obj.c]))
+  )
 
   currentPad$ = new BehaviorSubject<IPad | null>(null)
 
@@ -17,14 +20,7 @@ export class PadsComponent implements OnInit {
   ) { }
 
   ngOnInit(): void {
-    const padsInfo: IPad[] = Object.keys(this.store.pads$.getValue())
-    .map(padName => {
-      const padValues: any = this.store.pads$.getValue()
-      return padValues[padName]
-    })
-    
-    this.pads$.next(padsInfo)
-
+    this.pads$.subscribe(console.log)
     combineLatest([fromEvent(window, 'keydown'), this.pads$]).subscribe(([e, pads]) => {
       const event: any = e
       pads.forEach(pad => {

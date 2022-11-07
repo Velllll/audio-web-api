@@ -2,16 +2,31 @@
     <div class="title">Samples</div>
     <mat-accordion>
       <!-- Pads -->
-      <mat-expansion-panel *ngFor="let folder of folders$ | async" hideToggle>
+      <mat-expansion-panel class="noselect" *ngFor="let folder of folders" hideToggle>
         <mat-expansion-panel-header>
           <mat-panel-title>
             {{folder.name}}
           </mat-panel-title>
         </mat-expansion-panel-header>
         <div class="samples" *ngFor="let sample of folder.samples">
-          <div class="sample-info" (click)="play(sample.src)">
-              <span>{{sample.name}}</span>
+          <div class="sample-info">
+              <div class="sample-name" (click)="play(sample.src)">{{sample.sampleName}}</div>
+              <button mat-button [matMenuTriggerFor]="menu">
+                <mat-icon>filter_list</mat-icon>
+              </button>
+              <mat-menu #menu="matMenu">
+                <button mat-menu-item (click)="appointToPad(sample.src, 'q', sample.sampleName)">Pad q</button>
+                <button mat-menu-item (click)="appointToPad(sample.src, 'w', sample.sampleName)">Pad w</button>
+                <button mat-menu-item (click)="appointToPad(sample.src, 'e', sample.sampleName)">Pad e</button>
+                <button mat-menu-item (click)="appointToPad(sample.src, 'a', sample.sampleName)">Pad a</button>
+                <button mat-menu-item (click)="appointToPad(sample.src, 's', sample.sampleName)">Pad s</button>
+                <button mat-menu-item (click)="appointToPad(sample.src, 'd', sample.sampleName)">Pad d</button>
+                <button mat-menu-item (click)="appointToPad(sample.src, 'z', sample.sampleName)">Pad z</button>
+                <button mat-menu-item (click)="appointToPad(sample.src, 'x', sample.sampleName)">Pad x</button>
+                <button mat-menu-item (click)="appointToPad(sample.src, 'c', sample.sampleName)">Pad c</button>
+              </mat-menu>
           </div>
+          
         </div>
         
       </mat-expansion-panel>

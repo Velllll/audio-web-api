@@ -9,6 +9,15 @@
         font-size: 25px;
         text-align: center;
     }
+    .mat-expansion-panel {
+        background-color: rgb(218, 168, 42);
+        color: rgb(255, 255, 255);
+        box-shadow: none;
+
+        .mat-expansion-panel-header-title{
+            color: rgb(252, 252, 252);
+        }
+    }
     .samples {
         margin: 10px 0;
         .sample-info {
@@ -17,9 +26,16 @@
             border: 1px solid white;
             padding: 3px;
             border-radius: 5px;
+            
+            .sample-name {
+                width: 80%;
+                margin-left: 10px;
+                cursor: pointer;
+            }
             button {
                 margin-right: 10px;
-                background-color: white;
+                background-color: rgb(255, 255, 255);
+                color: rgb(218, 168, 42);
                 border-radius: 50%;
                 display: flex;
                 justify-content: center;
