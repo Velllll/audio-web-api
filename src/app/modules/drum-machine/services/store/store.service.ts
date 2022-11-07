@@ -1,36 +1,132 @@
 import { Injectable } from '@angular/core';
 import { BehaviorSubject } from 'rxjs';
 
-export interface ISound {
+export interface ISample {
   name: string;
   src: string;
+  sampleId: number;
   pad?: number
+}
+
+export interface IFolder {
+  folderID: number;
+  name: string;
+  samples: ISample[]
+}
+
+export interface IPad {
+  padName: string;
+  src: string;
+  sampleName: string
+}
+
+export interface IPads {
+  q: IPad;
+  w: IPad;
+  e: IPad;
+  a: IPad;
+  s: IPad;
+  d: IPad;
+  z: IPad;
+  x: IPad;
+  c: IPad;
 }
 
 @Injectable()
 export class StoreService {
-  kiksArr: ISound[] = [
-    {name: 'a', src: 'assets/kicks/a.wav'},
-    {name: 'b', src: 'assets/kicks/b.wav'},
-    {name: 'c', src: 'assets/kicks/c.wav'},
-  ]
-  kiks = new BehaviorSubject<ISound[]>(this.kiksArr)
 
-  hatsArr: ISound[] = [
-    {name: 'grit hat', src: 'assets/hats/grit hat.wav'},
-    {name: 'hat 1', src: 'assets/hats/hat 1.wav'},
-  ]
-  hats = new BehaviorSubject<ISound[]>(this.hatsArr)
+  folder$: BehaviorSubject<IFolder[]> = new BehaviorSubject([
+    {
+      folderID: 713298625,
+      name: 'Kiks', 
+      samples: [
+        {name: 'a', src: 'assets/kicks/a.wav', sampleId: 95720},
+        {name: 'b', src: 'assets/kicks/b.wav', sampleId: 720546 },
+        {name: 'c', src: 'assets/kicks/c.wav', sampleId: 95723 },
+      ]
+    },
+    {
+      folderID: 718625,
+      name: 'Hats',
+      samples: [
+        {name: 'grit hat', src: 'assets/hats/grit hat.wav', sampleId: 9574 },
+        {name: 'hat 1', src: 'assets/hats/hat 1.wav', sampleId: 9573 },
+      ]
+    },
+    {
+      folderID: 74325,
+      name: 'Percs',
+      samples: [
+        {name: 'perc1', src: 'assets/percs/perc1.wav', sampleId: 9572 },
+      ]
+    },
+    {
+      folderID: 712312345,
+      name: 'Snares',
+      samples: [
+        {name: 'e', src: 'assets/snares/e.wav', sampleId: 9571 },
+        {name: 'dilla snare - Part_1', src: 'assets/snares/dilla snare - Part_1.wav', sampleId: 9571345 },
+      ]
+    }
+  ])
 
-  percsArr: ISound[] = [
-    {name: 'perc1', src: 'assets/percs/perc1.wav'},
-  ]
-  percs = new BehaviorSubject<ISound[]>(this.percsArr)
-  
-  snaresArr: ISound[] = [
-    {name: 'e', src: 'assets/snares/e.wav'},
-  ]
-  snares = new BehaviorSubject<ISound[]>(this.snaresArr)
+  pads$: BehaviorSubject<IPads> = new BehaviorSubject({
+    q: {
+      padName: 'q',
+      src: 'assets/kicks/a.wav',
+      sampleName: 'a'
+    },
+    w: {
+      padName: 'w',
+      src: 'assets/snares/dilla snare - Part_1.wav',
+      sampleName: 'dilla snare - Part_1'
+    },
+    e: {
+      padName: 'e',
+      src: '',
+      sampleName: ''
+    },
+    a: {
+      padName: 'a',
+      src: '',
+      sampleName: ''
+    },
+    s: {
+      padName: 's',
+      src: '',
+      sampleName: ''
+    },
+    d: {
+      padName: 'd',
+      src: '',
+      sampleName: ''
+    },
+    z: {
+      padName: 'z',
+      src: '',
+      sampleName: ''
+    },
+    x: {
+      padName: 'x',
+      src: '',
+      sampleName: ''
+    },
+    c: {
+      padName: 'c',
+      src: '',
+      sampleName: ''
+    },
+  })
 
   constructor() { }
+
+  playSample(src: string) {
+    const audio = new Audio(src)
+    audio.play()
+  }
+
+  getPadInfo(padName: string): IPad {
+    const pads: any = this.pads$.getValue()
+    return pads[padName]
+  }
 }

@@ -1,15 +1,19 @@
 <div class="container">
-    <div class="settings">
-        <div class="volume">
-            Volume: <mat-slider displayValue value="50"></mat-slider>
-        </div>
-        <div class="name">
-            "pad name"
+    <div class="settings" >
+        <div class="info" *ngIf="currentPad$ | async as currentPad">
+            <div class="volume">
+                Volume: <mat-slider displayValue value="50"></mat-slider>
+            </div>
+            <div class="name">
+                Sample: {{currentPad.sampleName ? currentPad.sampleName : 'Pad is empty'}}
+            </div>
         </div>
     </div>
     <div class="pads-container">
-        <div class="pads noselect" *ngFor="let pad of ['q', 'w', 'e', 'a', 's', 'd', 'z', 'x', 'c']">
-            {{pad}}
+        <div class="pads noselect" *ngFor="let pad of (pads$ | async)">
+            <div class="pad" (click)="palySample(pad.padName)">
+                {{pad.padName + ' ' + pad.sampleName}}
+            </div>
         </div>
     </div>
     
