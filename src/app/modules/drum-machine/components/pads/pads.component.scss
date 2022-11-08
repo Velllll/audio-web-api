@@ -1,7 +1,6 @@
 .container {
     width: 65vw;
     padding: 15px;
-    margin: 15px;
     height: 40vh;
     position: relative;
     font-size: 25px;
@@ -12,7 +11,7 @@
             display: flex;
             justify-content: center;
             align-items: center;
-            .volume {
+            .volume-container {
                 width: 30%;
                 padding: 0 10px;
                 .mat-slider-ticks {
@@ -65,19 +64,6 @@
                     width: 100%;
                 }
             }
-        }
-    }
-
-    .background-container {
-        height: 100%;
-        width: 100%;
-        position: absolute;
-        top: 0;
-        left: 0;
-        z-index: -10;
-        svg {
-            height: 100%;
-            width: 100%;
         }
     }
 }

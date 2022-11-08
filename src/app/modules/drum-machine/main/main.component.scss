@@ -1,11 +1,36 @@
 .container {
     display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
     height: 100%;
-    .vst-container {
-        width: 75vw;
+    .row-container {
+        width: 100vw;
         display: flex;
-        flex-direction: column;
         justify-content: center;
         align-items: center;
+
+        .file-cntainer {
+            position: relative;
+            margin: 0.5vw;
+            padding-bottom: 1vh;
+        }
+        .pads-container {
+            margin: 0.5vw;
+            position: relative;
+        }
+    }
+}
+
+.background-container {
+    height: 100%;
+    width: 100%;
+    position: absolute;
+    top: 0;
+    left: 0;
+    z-index: -10;
+    svg {
+        height: 100%;
+        width: 100%;
     }
 }
