@@ -12,13 +12,15 @@ import {MatIconModule} from '@angular/material/icon';
 import {MatSliderModule} from '@angular/material/slider';
 import {MatMenuModule} from '@angular/material/menu';
 import { ReactiveFormsModule } from '@angular/forms';
-
+import { SnackBarWarningComponent } from './components/files/snack-bar-warning/snack-bar-warning.component';
+import {MatSnackBarModule} from '@angular/material/snack-bar';
 @NgModule({
   declarations: [
     MainComponent,
     FilesComponent,
     PadsComponent,
-    ScalesComponent
+    ScalesComponent,
+    SnackBarWarningComponent
   ],
   imports: [
     CommonModule,
@@ -27,7 +29,8 @@ import { ReactiveFormsModule } from '@angular/forms';
     MatIconModule,
     MatSliderModule,
     MatMenuModule,
-    ReactiveFormsModule
+    ReactiveFormsModule,
+    MatSnackBarModule
   ],
   providers: [StoreService]
 })

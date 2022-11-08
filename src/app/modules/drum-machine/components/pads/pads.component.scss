@@ -14,8 +14,8 @@
             .volume-container {
                 width: 30%;
                 padding: 0 10px;
-                .mat-slider-ticks {
-                    opacity: 1;
+                input {
+                    background-color: black;
                 }
             }
             .name {

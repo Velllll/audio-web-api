@@ -1,5 +1,7 @@
 import { Injectable } from '@angular/core';
+import { MatSnackBar } from '@angular/material/snack-bar';
 import { BehaviorSubject, map } from 'rxjs';
+import { SnackBarWarningComponent } from '../../components/files/snack-bar-warning/snack-bar-warning.component';
 
 export interface ISample {
   sampleName: string;
@@ -134,7 +136,9 @@ export class StoreService {
     )
   }
 
-  constructor() { }
+  constructor(
+    private snackBar: MatSnackBar
+  ) { }
 
   playSample(src: string, volume: number, padName: string) {
     const audio = new Audio(src)
@@ -169,7 +173,9 @@ export class StoreService {
         }
       })
     } else {
-      console.log('this pad is full')
+      this.snackBar.openFromComponent(SnackBarWarningComponent, {
+        duration: 2000,
+      })
     }
   }
 
