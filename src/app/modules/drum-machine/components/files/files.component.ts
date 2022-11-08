@@ -20,7 +20,7 @@ export class FilesComponent implements OnInit {
   }
 
   play(src: string) {
-    this.store.playSample(src)
+    this.store.selectSamplePlay(src)
   }
 
   appointToPad(sapmlesSrc: string, pad: string, sampleName: string) {

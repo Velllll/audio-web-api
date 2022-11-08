@@ -11,6 +11,7 @@ import { StoreService } from './services/store/store.service';
 import {MatIconModule} from '@angular/material/icon';
 import {MatSliderModule} from '@angular/material/slider';
 import {MatMenuModule} from '@angular/material/menu';
+import { ReactiveFormsModule } from '@angular/forms';
 
 @NgModule({
   declarations: [
@@ -25,7 +26,8 @@ import {MatMenuModule} from '@angular/material/menu';
     MatExpansionModule,
     MatIconModule,
     MatSliderModule,
-    MatMenuModule
+    MatMenuModule,
+    ReactiveFormsModule
   ],
   providers: [StoreService]
 })

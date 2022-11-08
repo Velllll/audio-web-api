@@ -4,8 +4,10 @@
             <div class="name pad-name">
                 Pad: {{currentPad.padName ? currentPad.padName : 'Select pad'}}
             </div>
-            <div class="volume">
-                Volume: <mat-slider displayValue value="50"></mat-slider>
+            <div class="volume" *ngIf="currentPad.padName">
+                <form [formGroup]="volumeForm">
+                    Volume: {{getVolume()}}<input formControlName="volume" min="0" max="1" step="0.1" value="0.5" type="range"> 
+                </form>
             </div>
             <div class="name sample-name">
                 Sample: {{currentPad.sampleName ? currentPad.sampleName : 'Pad is empty'}}
