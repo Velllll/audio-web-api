@@ -18,7 +18,8 @@
     <div class="pads-container" *ngIf="pads$ | async as pads">
         <div class="pads noselect" *ngFor="let pad of pads">
             <div class="pad" (click)="palySample(pad.padName)">
-                {{pad.padName + ' ' + pad.sampleName}}
+                <div class="pad-name">{{pad.padName}}</div>
+                <div class="pad-sample-name">{{getSampleName(pad.sampleName)}}</div>
             </div>
             <!-- background -->
             <div class="background-pad">

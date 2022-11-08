@@ -60,4 +60,8 @@ export class PadsComponent implements OnInit {
       return 100
     }
   }
+
+  getSampleName(name: string) {
+    return name ? name.slice(0, 10) + (name.slice(10, 11) ? '...' : '') : 'empty'
+  }
 }
