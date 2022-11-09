@@ -1,9 +1,18 @@
 .container {
-    width: 91.5vw;
-    padding: 15px;
+    width: 91vw;
+    padding: 1vh;
     margin: 0.5vw;
     height: 50vh;
     position: relative;
+
+    .settings {
+        height: 5vh;
+        border-bottom: 1px black solid;
+    }
+
+    .scales {
+        height: 43vh;
+    }
 
     .background-container {
         height: 100%;
