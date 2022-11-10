@@ -1,10 +1,17 @@
-import { AfterViewInit, Component, ElementRef, OnInit, ViewChild } from '@angular/core';
+import { AfterViewInit, ChangeDetectionStrategy, Component, ElementRef, OnInit, ViewChild } from '@angular/core';
 import * as d3 from 'd3'
-import { fromEvent } from 'rxjs';
+import { BehaviorSubject, fromEvent } from 'rxjs';
+
+export interface INotesStorage {
+  noteId: string;
+  pad: string;
+  relativeX: number
+}
+
 @Component({
   selector: 'app-scales',
   templateUrl: './scales.component.html',
-  styleUrls: ['./scales.component.scss']
+  styleUrls: ['./scales.component.scss'],
 })
 export class ScalesComponent implements OnInit, AfterViewInit {
   svg!: d3.Selection<d3.BaseType, unknown, HTMLElement, any>
@@ -12,47 +19,77 @@ export class ScalesComponent implements OnInit, AfterViewInit {
   settings = {
     height: innerHeight * 0.43,
     width: innerWidth * 0.89,
+    marginLeftForName: 100,
     // 4 bars and 70 px for pad name
-    barWidth: (innerWidth * 0.89 - 70) / 4,
+    barWidth: (innerWidth * 0.89 - 100) / 4,
     noteHeight: innerHeight * 0.43 / 8,
-    noteWidth: (innerWidth * 0.89 - 70) / 16
+    noteWidth: (innerWidth * 0.89 - 100) / 32
   }
+
+  notesStorage$ = new BehaviorSubject<INotesStorage[]>([])
 
   constructor() { }
 
   ngAfterViewInit(): void {
     fromEvent(window, 'resize').subscribe(() => {
-      this.renderLines()
       this.settings.height = innerHeight * 0.43
       this.settings.width = innerWidth * 0.89
-      this.settings.barWidth = (innerWidth * 0.89 - 70) / 4
-      this.svg = d3.selectAll('.scales-svg')
-        .attr('height', this.settings.height)
-        .attr('width', this.settings.width)
+      this.settings.barWidth = (innerWidth * 0.89 - this.settings.marginLeftForName) / 4
+      this.settings.noteHeight = innerHeight * 0.43 / 8
+      this.settings.noteWidth = (innerWidth * 0.89 - this.settings.marginLeftForName) / 32
+      //update svg size
+      this.renderSvg()
+      //update lines
+      this.renderLines()
+      //add notes to svg
+      this.renderNotes()
     })
   }
 
   ngOnInit(): void {
-    console.log(this.settings.barWidth, this.settings.width)
-    this.svg = d3.selectAll('.scales-svg')
-      .attr('height', this.settings.height)
-      .attr('width', this.settings.width)
+    //appoint width and height to svg element
+    this.renderSvg()
+    //render notes from storage (do befor renderNotes() func)
+    this.loadNotesFromStorage()
+    //add lines to svg
     this.renderLines()
-    this.addNote('qweads', 'q')
-    this.addNote('ghffgh', 'q')
-    this.addNote('wrrwe', 'q')
-    this.addNote('retgdfgdf', 's')
-    this.addNote('bccbvbcv', 'd')
+    //add notes to svg
+    this.renderNotes()
+  }
+
+  renderSvg() {
+    this.svg = d3.selectAll('.scales-svg')
+    .attr('height', this.settings.height)
+    .attr('width', this.settings.width)
+
+    //added option to add new note on dblclick
+    this.svg.on('dblclick', d => {
+      //if clicked on margine zone woudn't add new note
+      if(d.offsetX >= this.settings.marginLeftForName) {
+        const y = d.offsetY
+        const pad = this.getPadFromYPosition(y)
+        //xRelative is x position in numbers of notes width from left edge
+        const relativeX = (d.offsetX - this.settings.marginLeftForName) / this.settings.noteWidth
+        this.addNote(this.getId(), pad, relativeX)
+      }
+    })
+  }
+
+  renderNotes() {
+      this.notesStorage$.getValue().forEach(note => {
+        this.addNote(note.noteId, note.pad, note.relativeX)
+      })
   }
 
   renderLines() {
-    this.svg.selectAll(".padNames").remove()
+    this.svg.selectAll(".verticalBars").remove()
     this.svg.selectAll(".hrPads").remove()
+    this.svg.selectAll(".verticalIntoBars").remove()
     
     this.svg.append('g')
-    .attr('class', 'padNames')
+    .attr('class', 'verticalBars')
     .selectAll('line')
-    .data([70, this.settings.barWidth + 70, this.settings.barWidth * 2 + 70, this.settings.barWidth * 3 + 70])
+    .data([this.settings.marginLeftForName, this.settings.barWidth + this.settings.marginLeftForName, this.settings.barWidth * 2 + this.settings.marginLeftForName, this.settings.barWidth * 3 + this.settings.marginLeftForName])
     .join('line')
       .attr('stroke', 'black')
       .attr('stroke-width', 3)
@@ -75,11 +112,11 @@ export class ScalesComponent implements OnInit, AfterViewInit {
     
     const dataLines2: number[] = []
     for(let i = 0; i <= 16; i++) {
-      const x = 70 + this.settings.barWidth / 4 * i
+      const x = this.settings.marginLeftForName + this.settings.barWidth / 4 * i
       dataLines2.push(x)
     }
     this.svg.append('g')
-    .attr('class', 'hrPads')
+    .attr('class', 'verticalIntoBars')
       .selectAll('line')
       .data(dataLines2)
       .join('line')
@@ -91,10 +128,74 @@ export class ScalesComponent implements OnInit, AfterViewInit {
       .attr('y2', this.settings.height)
   }
 
-  addNote(name: string, pad: string) {
-    let x = 71
-    let y: number;
-    switch (pad) {
+  saveStorage() {
+    localStorage.removeItem('notes')
+    localStorage.setItem('notes', JSON.stringify(this.notesStorage$.getValue()))
+  }
+
+  loadNotesFromStorage() {
+    const jsonData = localStorage.getItem('notes')
+    if(jsonData) {
+      const notes: INotesStorage[] | null = JSON.parse(jsonData)
+      if(notes) this.notesStorage$.next(notes)
+    }
+  }
+
+  addNote(noteId: string, pad: string, relativeX: number) {
+    const x = relativeX * this.settings.noteWidth + this.settings.marginLeftForName
+    //if notesStorage is empty add new notes
+    if(!this.notesStorage$.getValue().length) {
+      const newNotes = {noteId, pad, relativeX}
+      this.notesStorage$.next([...this.notesStorage$.getValue(), newNotes])
+    } 
+    //check if notesStorage has notes if not push this new note to storage
+    if(this.notesStorage$.getValue().length) {
+      const isNoteExist = this.notesStorage$.getValue().map(n => n.noteId).includes(noteId)
+      if(!isNoteExist) {
+        const newNotes = {noteId, pad, relativeX}
+        this.notesStorage$.next([...this.notesStorage$.getValue(), newNotes])
+      }
+    }
+
+    let y: number = this.getYPositionForPad(pad)
+    
+    this.svg.selectAll("rect." + noteId)
+    .data([{x: x, y: y}])
+    .join(`rect`)
+      .attr('class', noteId)
+      .attr("x", d => d.x)
+      .attr("y", d => d.y)
+      .attr("width", this.settings.noteWidth)
+      .attr("height", this.settings.noteHeight)
+      .attr('fill', 'rgb(181, 28, 28)')
+      .attr('stroke', 'black')
+      .attr('stroke-width', 3)
+      .call(d3.drag<any, any>()
+      .on("drag", (event: any, d: any) => {
+        if(event.x > this.settings.marginLeftForName && event.x + this.settings.noteWidth < this.settings.width) {
+          d3.selectAll("rect." + noteId).raise().attr("x", (d.x = event.x))
+          //updateLocalStorage
+          const newData = this.notesStorage$.getValue().map(note => {
+            if(note.noteId === noteId)  {
+              return {...note, relativeX: (d.x - this.settings.marginLeftForName) / this.settings.noteWidth}
+            }
+            return note
+          })
+          this.notesStorage$.next(newData)
+        }
+      })
+    );
+    // on dblclick delete note
+    this.svg.selectAll("rect." + noteId).on("click", (d) => {
+      // console.log(this.notesStorage$.getValue(), this.notesStorage$.getValue().filter(note => note.noteId !== noteId))
+      this.notesStorage$.next(this.notesStorage$.getValue().filter(note => note.noteId !== noteId))
+      this.svg.selectAll("rect." + noteId).remove()
+    });
+  }
+
+  getYPositionForPad(padName: string) {
+    let y
+    switch (padName) {
       case 'q':
         y = 0
         break;
@@ -126,30 +227,23 @@ export class ScalesComponent implements OnInit, AfterViewInit {
         y = 0
         break;
     }
-      
-    this.svg.selectAll("rect." + name)
-    .data([{x: x, y: y}])
-    .join(`rect`)
-      .attr('class', name)
-      .attr("x", d => d.x)
-      .attr("y", d => d.y)
-      .attr("width", this.settings.noteWidth)
-      .attr("height", this.settings.noteHeight)
-      .call(d3.drag<any, any>()
-      .on("start", () => {
-        // d3.selectAll("rect." + name).attr("stroke", "red");
-      })
-      .on("drag", (event: any, d: any) => {
-        if(event.x > 70 && event.x + this.settings.noteWidth < this.settings.width) {
-          d3.selectAll("rect." + name).raise().attr("x", (d.x = event.x))
-        }
-      })
-      .on("end", () => {
-        // d3.selectAll("rect." + name).attr("stroke", null);
-      }));
+    return y
+  }
 
-    this.svg.selectAll("rect." + name).on("dblclick", (d) => {
-      this.svg.selectAll("rect." + name).remove()
-    });
+  getPadFromYPosition(y: number) {
+    if(y > 0 && y < this.settings.noteHeight) return 'q'
+    else if (y > this.settings.noteHeight && y < (this.settings.noteHeight * 2)) return 'w'
+    else if (y > (this.settings.noteHeight * 2) && y < (this.settings.noteHeight * 3)) return 'e'
+    else if (y > (this.settings.noteHeight * 3) && y < (this.settings.noteHeight * 4)) return 'a'
+    else if (y > (this.settings.noteHeight * 4) && y < (this.settings.noteHeight * 5)) return 's'
+    else if (y > (this.settings.noteHeight * 5) && y < (this.settings.noteHeight * 6)) return 'd'
+    else if (y > (this.settings.noteHeight * 6) && y < (this.settings.noteHeight * 7)) return 'z'
+    else if (y > (this.settings.noteHeight * 7) && y < (this.settings.noteHeight * 8)) return 'x'
+    else return 'c'
+  }
+
+  getId() {
+    const random = [...Math.random().toString(36).substr(2, 9)].filter(n => !+n && n !== '0').join('')
+    return random + random
   }
 }

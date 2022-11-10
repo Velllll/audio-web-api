@@ -1,6 +1,6 @@
 import { Injectable } from '@angular/core';
 import { MatSnackBar } from '@angular/material/snack-bar';
-import { BehaviorSubject, map } from 'rxjs';
+import { BehaviorSubject, map, Observable } from 'rxjs';
 import { SnackBarWarningComponent } from '../../components/files/snack-bar-warning/snack-bar-warning.component';
 
 export interface ISample {
@@ -130,7 +130,7 @@ export class StoreService {
     },
   })
 
-  get padsArr$() {
+  get padsArr$(): Observable<IPad[]> {
     return this.pads$.pipe(
       map(obj => ([obj.q, obj.w, obj.e, obj.a, obj.s, obj.d, obj.z, obj.x, obj.c]))
     )
