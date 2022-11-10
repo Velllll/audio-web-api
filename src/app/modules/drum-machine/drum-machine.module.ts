@@ -14,6 +14,7 @@ import {MatMenuModule} from '@angular/material/menu';
 import { ReactiveFormsModule } from '@angular/forms';
 import { SnackBarWarningComponent } from './components/files/snack-bar-warning/snack-bar-warning.component';
 import {MatSnackBarModule} from '@angular/material/snack-bar';
+
 @NgModule({
   declarations: [
     MainComponent,
@@ -30,7 +31,8 @@ import {MatSnackBarModule} from '@angular/material/snack-bar';
     MatSliderModule,
     MatMenuModule,
     ReactiveFormsModule,
-    MatSnackBarModule
+    MatSnackBarModule,
+    
   ],
   providers: [StoreService]
 })

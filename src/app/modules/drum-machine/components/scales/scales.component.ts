@@ -1,6 +1,6 @@
 import { AfterViewInit, ChangeDetectionStrategy, Component, ElementRef, OnInit, ViewChild } from '@angular/core';
 import * as d3 from 'd3'
-import { BehaviorSubject, fromEvent } from 'rxjs';
+import { BehaviorSubject, fromEvent, interval, startWith } from 'rxjs';
 
 export interface INotesStorage {
   noteId: string;
@@ -20,11 +20,13 @@ export class ScalesComponent implements OnInit, AfterViewInit {
     height: innerHeight * 0.43,
     width: innerWidth * 0.89,
     marginLeftForName: 100,
-    // 4 bars and 70 px for pad name
+    // 4 bars and margin-left
     barWidth: (innerWidth * 0.89 - 100) / 4,
     noteHeight: innerHeight * 0.43 / 8,
     noteWidth: (innerWidth * 0.89 - 100) / 32
   }
+
+  bpm = 180
 
   notesStorage$ = new BehaviorSubject<INotesStorage[]>([])
 
@@ -51,12 +53,16 @@ export class ScalesComponent implements OnInit, AfterViewInit {
     this.renderSvg()
     //render notes from storage (do befor renderNotes() func)
     this.loadNotesFromStorage()
+    //(do befor renderNotes() func)
+    this.renderGElementsForLines()
     //add lines to svg
     this.renderLines()
     //add notes to svg
     this.renderNotes()
   }
-
+  /**
+   * appoint width and height to svg element 
+   */
   renderSvg() {
     this.svg = d3.selectAll('.scales-svg')
     .attr('height', this.settings.height)
@@ -74,6 +80,65 @@ export class ScalesComponent implements OnInit, AfterViewInit {
       }
     })
   }
+  /**
+   * render g containers for lines (render before renderLines() func)
+   */
+  renderGElementsForLines() {
+    this.svg
+    .append('g')
+    .attr('class', 'verticalIntoBars')
+
+    this.svg
+    .append('g')
+    .attr('class', 'verticalBars')
+
+    this.svg.append('g')
+    .attr('class', 'hrPads')
+
+    this.svg.append('g')
+    .attr('class', 'moveLine')
+  }
+
+  start() {
+    const timeForOneBar = 60000 / this.bpm
+    interval(timeForOneBar).pipe(startWith(-1)).subscribe((linePos) => {
+      this.renderMoveLine(timeForOneBar)
+    })
+  }
+
+  renderMoveLine(duration: number) {
+    let xPos: number = this.getXPosForMoveingLine(duration)
+    let d = duration
+    if(this.curentPos.getValue() === 1) d = 0
+    const transition = d3.transition()
+    .duration(d)
+    .ease(d3.easeLinear)
+
+    d3.selectAll('g.moveLine')
+    .selectAll('line.moveLine')
+    .data([xPos])
+    .join('line')
+    .transition(transition)
+    .attr('class', 'moveLine')
+    .attr('x1', d => d)
+    .attr('x2', d => d)
+    .attr('y1', 0)
+    .attr('y2', this.settings.height)
+    .attr('stroke', 'rgb(125, 32, 125)')
+    .attr('stroke-width', 1)
+  }
+
+  curentPos = new BehaviorSubject(0)
+  getXPosForMoveingLine(duration: number) {
+    if(this.curentPos.getValue() === 33) this.curentPos.next(0)
+    if(!duration) {
+      return this.settings.marginLeftForName
+    } else {
+      const pos = this.curentPos.getValue()
+      this.curentPos.next(this.curentPos.getValue() + 1)
+      return (this.curentPos.getValue() - 1) * this.settings.noteWidth + this.settings.marginLeftForName
+    }
+  }
 
   renderNotes() {
       this.notesStorage$.getValue().forEach(note => {
@@ -81,16 +146,13 @@ export class ScalesComponent implements OnInit, AfterViewInit {
       })
   }
 
-  renderLines() {
-    this.svg.selectAll(".verticalBars").remove()
-    this.svg.selectAll(".hrPads").remove()
-    this.svg.selectAll(".verticalIntoBars").remove()
-    
-    this.svg.append('g')
-    .attr('class', 'verticalBars')
-    .selectAll('line')
-    .data([this.settings.marginLeftForName, this.settings.barWidth + this.settings.marginLeftForName, this.settings.barWidth * 2 + this.settings.marginLeftForName, this.settings.barWidth * 3 + this.settings.marginLeftForName])
-    .join('line')
+  renderLines() {    
+    const dataLines0 = [this.settings.marginLeftForName, this.settings.barWidth + this.settings.marginLeftForName, this.settings.barWidth * 2 + this.settings.marginLeftForName, this.settings.barWidth * 3 + this.settings.marginLeftForName]
+    d3.selectAll('g.verticalBars')
+      .selectAll('line.verticalBars')
+      .data(dataLines0)
+      .join('line')
+      .attr('class', 'verticalBars')
       .attr('stroke', 'black')
       .attr('stroke-width', 3)
       .attr('x1', (x) => x)
@@ -99,11 +161,11 @@ export class ScalesComponent implements OnInit, AfterViewInit {
       .attr('y2', this.settings.height)
 
     const dataLines1 = [this.settings.height / 8 * 1, this.settings.height / 8 * 2, this.settings.height / 8 * 3, this.settings.height / 8 * 4, this.settings.height / 8 * 5, this.settings.height / 8 * 6, this.settings.height / 8 * 7, this.settings.height]
-    this.svg.append('g')
-    .attr('class', 'hrPads')
-      .selectAll('line')
+    d3.selectAll('g.hrPads')
+      .selectAll('line.hrPads')
       .data(dataLines1)
       .join('line')
+      .attr('class', 'hrPads')
       .attr('x1', 0)
       .attr('x2', this.settings.width)
       .attr('y1', (y) => y)
@@ -115,11 +177,11 @@ export class ScalesComponent implements OnInit, AfterViewInit {
       const x = this.settings.marginLeftForName + this.settings.barWidth / 4 * i
       dataLines2.push(x)
     }
-    this.svg.append('g')
-    .attr('class', 'verticalIntoBars')
-      .selectAll('line')
+    d3.selectAll('g.verticalIntoBars')
+      .selectAll('line.verticalIntoBars')
       .data(dataLines2)
       .join('line')
+      .attr('class', 'verticalIntoBars')
       .attr('stroke', 'black')
       .attr('stroke-width', 1)
       .attr('x1', (x) => x)
@@ -127,7 +189,9 @@ export class ScalesComponent implements OnInit, AfterViewInit {
       .attr('y1', 0)
       .attr('y2', this.settings.height)
   }
-
+  /**
+   * save local data from this.notesStorage$ to database or localStorage
+   */
   saveStorage() {
     localStorage.removeItem('notes')
     localStorage.setItem('notes', JSON.stringify(this.notesStorage$.getValue()))
@@ -158,6 +222,8 @@ export class ScalesComponent implements OnInit, AfterViewInit {
     }
 
     let y: number = this.getYPositionForPad(pad)
+
+    const strokeWidth = 1
     
     this.svg.selectAll("rect." + noteId)
     .data([{x: x, y: y}])
@@ -165,11 +231,11 @@ export class ScalesComponent implements OnInit, AfterViewInit {
       .attr('class', noteId)
       .attr("x", d => d.x)
       .attr("y", d => d.y)
-      .attr("width", this.settings.noteWidth)
+      .attr("width", this.settings.noteWidth - strokeWidth)
       .attr("height", this.settings.noteHeight)
-      .attr('fill', 'rgb(181, 28, 28)')
+      .attr('fill', 'rgb(125, 32, 125)')
       .attr('stroke', 'black')
-      .attr('stroke-width', 3)
+      .attr('stroke-width', strokeWidth)
       .call(d3.drag<any, any>()
       .on("drag", (event: any, d: any) => {
         if(event.x > this.settings.marginLeftForName && event.x + this.settings.noteWidth < this.settings.width) {
@@ -187,12 +253,15 @@ export class ScalesComponent implements OnInit, AfterViewInit {
     );
     // on dblclick delete note
     this.svg.selectAll("rect." + noteId).on("click", (d) => {
-      // console.log(this.notesStorage$.getValue(), this.notesStorage$.getValue().filter(note => note.noteId !== noteId))
       this.notesStorage$.next(this.notesStorage$.getValue().filter(note => note.noteId !== noteId))
       this.svg.selectAll("rect." + noteId).remove()
     });
   }
-
+  /**
+   * for getting y position by name of pad
+   * @param padName name of pad
+   * @returns y position for scales
+   */
   getYPositionForPad(padName: string) {
     let y
     switch (padName) {
@@ -241,7 +310,10 @@ export class ScalesComponent implements OnInit, AfterViewInit {
     else if (y > (this.settings.noteHeight * 7) && y < (this.settings.noteHeight * 8)) return 'x'
     else return 'c'
   }
-
+  /**
+   * generate id
+   * @returns unique id
+   */
   getId() {
     const random = [...Math.random().toString(36).substr(2, 9)].filter(n => !+n && n !== '0').join('')
     return random + random
