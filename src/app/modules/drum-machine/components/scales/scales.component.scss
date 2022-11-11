@@ -8,6 +8,41 @@
     .settings {
         height: 5vh;
         border-bottom: 1px black solid;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        .handlers {
+            margin: 0 20px;
+        }
+        .bpm-container {
+            margin: 0 20px;
+            display: flex;
+            align-items: center;
+            padding: 0 10px;
+            .bpm {
+                font-size: 30px;
+                width: 100px;
+                display: flex;
+                justify-content: center;
+                align-items: center;
+            }
+            .handlers {
+                display: flex;
+                flex-direction: column;
+                align-items: center;
+                justify-content: center;
+                .mat-icon {
+                    display: flex;
+                    justify-content: center;
+                    align-items: center;
+                    height: 2.5vh;
+                }
+            }
+        }
+
+        .mat-icon {
+            cursor: pointer;
+        }
     }
 
     .scales {

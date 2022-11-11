@@ -1,6 +1,6 @@
 import { AfterViewInit, ChangeDetectionStrategy, Component, ElementRef, OnInit, ViewChild } from '@angular/core';
 import * as d3 from 'd3'
-import { BehaviorSubject, fromEvent, interval, startWith } from 'rxjs';
+import { BehaviorSubject, fromEvent, interval, startWith, Subject, takeUntil } from 'rxjs';
 
 export interface INotesStorage {
   noteId: string;
@@ -13,7 +13,7 @@ export interface INotesStorage {
   templateUrl: './scales.component.html',
   styleUrls: ['./scales.component.scss'],
 })
-export class ScalesComponent implements OnInit, AfterViewInit {
+export class ScalesComponent implements OnInit {
   svg!: d3.Selection<d3.BaseType, unknown, HTMLElement, any>
 
   settings = {
@@ -26,13 +26,30 @@ export class ScalesComponent implements OnInit, AfterViewInit {
     noteWidth: (innerWidth * 0.89 - 100) / 32
   }
 
-  bpm = 180
+  bpm = 90
+
+  stopHandler$ = new Subject<boolean>()
+  //for time line 
+  curentPos = new BehaviorSubject(0)
 
   notesStorage$ = new BehaviorSubject<INotesStorage[]>([])
 
   constructor() { }
 
-  ngAfterViewInit(): void {
+  ngOnInit(): void {
+    //appoint width and height to svg element
+    this.renderSvg()
+    //render notes from storage (do befor renderNotes() func)
+    this.loadNotesFromStorage()
+    //(do befor renderNotes() func)
+    this.renderGElements()
+    //add lines to svg
+    this.renderLines()
+    //add notes to svg
+    this.renderNotes()
+    //render names
+    this.renderPadNames()
+
     fromEvent(window, 'resize').subscribe(() => {
       this.settings.height = innerHeight * 0.43
       this.settings.width = innerWidth * 0.89
@@ -45,20 +62,11 @@ export class ScalesComponent implements OnInit, AfterViewInit {
       this.renderLines()
       //add notes to svg
       this.renderNotes()
+      //render names
+      this.renderPadNames()
     })
-  }
 
-  ngOnInit(): void {
-    //appoint width and height to svg element
-    this.renderSvg()
-    //render notes from storage (do befor renderNotes() func)
-    this.loadNotesFromStorage()
-    //(do befor renderNotes() func)
-    this.renderGElementsForLines()
-    //add lines to svg
-    this.renderLines()
-    //add notes to svg
-    this.renderNotes()
+
   }
   /**
    * appoint width and height to svg element 
@@ -83,7 +91,7 @@ export class ScalesComponent implements OnInit, AfterViewInit {
   /**
    * render g containers for lines (render before renderLines() func)
    */
-  renderGElementsForLines() {
+  renderGElements() {
     this.svg
     .append('g')
     .attr('class', 'verticalIntoBars')
@@ -97,13 +105,60 @@ export class ScalesComponent implements OnInit, AfterViewInit {
 
     this.svg.append('g')
     .attr('class', 'moveLine')
+
+    this.svg.append('g')
+    .attr('class', 'titlesForPads')
+  }
+
+  renderPadNames() {
+    const fontSize = this.settings.noteHeight / 2
+    const k = this.settings.noteHeight / 2 + fontSize / 2
+    const dataOfYPos = [
+      {y: k, text: 'Pad q'}, 
+      {y: k + this.settings.noteHeight, text: 'Pad w'}, 
+      {y: k + (this.settings.noteHeight * 2), text: 'Pad e'}, 
+      {y: k + (this.settings.noteHeight * 3), text: 'Pad a'}, 
+      {y: k + (this.settings.noteHeight * 4), text: 'Pad s'}, 
+      {y: k + (this.settings.noteHeight * 5), text: 'Pad d'}, 
+      {y: k + (this.settings.noteHeight * 6), text: 'Pad z'}, 
+      {y: k + (this.settings.noteHeight * 7), text: 'Pad x'}, 
+      {y: k + (this.settings.noteHeight * 8), text: 'Pad c'}, 
+    ]
+    d3.selectAll('g.titlesForPads')
+      .selectAll('text')
+      .data(dataOfYPos)
+      .join('text')
+      .text(d => d.text)
+      .attr('font-size', fontSize)
+      .attr('y', d => d.y)
+      .attr('x', this.settings.marginLeftForName * 0.2)
+    
   }
 
   start() {
     const timeForOneBar = 60000 / this.bpm
-    interval(timeForOneBar).pipe(startWith(-1)).subscribe((linePos) => {
+    interval(timeForOneBar).pipe(
+      startWith(-1),
+      takeUntil(this.stopHandler$)
+    ).subscribe(() => {
       this.renderMoveLine(timeForOneBar)
     })
+  }
+
+  stop() {
+    this.stopHandler$.next(true)
+    this.curentPos.next(0)
+    this.renderMoveLine(0)
+  }
+
+  increaseBPM() {
+    this.bpm++
+    this.stop()
+  }
+
+  deincreaseBPM() {
+    this.bpm--
+    this.stop()
   }
 
   renderMoveLine(duration: number) {
@@ -125,19 +180,7 @@ export class ScalesComponent implements OnInit, AfterViewInit {
     .attr('y1', 0)
     .attr('y2', this.settings.height)
     .attr('stroke', 'rgb(125, 32, 125)')
-    .attr('stroke-width', 1)
-  }
-
-  curentPos = new BehaviorSubject(0)
-  getXPosForMoveingLine(duration: number) {
-    if(this.curentPos.getValue() === 33) this.curentPos.next(0)
-    if(!duration) {
-      return this.settings.marginLeftForName
-    } else {
-      const pos = this.curentPos.getValue()
-      this.curentPos.next(this.curentPos.getValue() + 1)
-      return (this.curentPos.getValue() - 1) * this.settings.noteWidth + this.settings.marginLeftForName
-    }
+    .attr('stroke-width', 2)
   }
 
   renderNotes() {
@@ -257,6 +300,8 @@ export class ScalesComponent implements OnInit, AfterViewInit {
       this.svg.selectAll("rect." + noteId).remove()
     });
   }
+
+  ////////////////////////////////////////////////////////////////////////
   /**
    * for getting y position by name of pad
    * @param padName name of pad
@@ -317,5 +362,16 @@ export class ScalesComponent implements OnInit, AfterViewInit {
   getId() {
     const random = [...Math.random().toString(36).substr(2, 9)].filter(n => !+n && n !== '0').join('')
     return random + random
+  }
+
+  getXPosForMoveingLine(duration: number) {
+    if(this.curentPos.getValue() === 33) this.curentPos.next(0)
+    if(!duration) {
+      return this.settings.marginLeftForName
+    } else {
+      const pos = this.curentPos.getValue()
+      this.curentPos.next(this.curentPos.getValue() + 1)
+      return (this.curentPos.getValue() - 1) * this.settings.noteWidth + this.settings.marginLeftForName
+    }
   }
 }

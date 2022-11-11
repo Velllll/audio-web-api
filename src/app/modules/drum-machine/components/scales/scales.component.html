@@ -1,8 +1,17 @@
 <div class="container">
     <div class="settings">
-        <button (click)="start()">play</button>
-        <button>stop</button>
-        <button (click)="saveStorage()">save file</button>
+        <div class="handlers">
+            <mat-icon  (click)="start()">play_arrow</mat-icon>
+            <mat-icon (click)="stop()">close</mat-icon>
+            <mat-icon (click)="saveStorage()">save</mat-icon>
+        </div>
+        <div class="bpm-container">
+            <div class="bpm">BPM:{{bpm}}</div>
+            <div class="handlers">
+                <mat-icon  (click)="increaseBPM()">expand_less</mat-icon>
+                <mat-icon  (click)="deincreaseBPM()">expand_more</mat-icon>
+            </div>
+        </div>
     </div>
     <div class="scales-container">
         <svg class="scales-svg"></svg>
