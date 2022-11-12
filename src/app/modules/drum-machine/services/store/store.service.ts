@@ -88,8 +88,8 @@ export class StoreService {
     },
     e: {
       padName: 'e',
-      src: '',
-      sampleName: '',
+      src: 'assets/hats/hat 1.wav',
+      sampleName: 'hat 1',
       volume: 0.5
     },
     a: {

@@ -1,7 +1,7 @@
-import { AfterViewInit, ChangeDetectionStrategy, Component, ElementRef, OnInit, ViewChild } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
 import * as d3 from 'd3'
-import { BehaviorSubject, fromEvent, interval, startWith, Subject, take, takeUntil, timeout } from 'rxjs';
-import { StoreService } from '../../services/store/store.service';
+import { BehaviorSubject, fromEvent, interval, Observable, startWith, Subject, take, takeUntil } from 'rxjs';
+import { IPad, StoreService } from '../../services/store/store.service';
 
 export interface INotesStorage {
   noteId: string;
@@ -27,9 +27,13 @@ export class ScalesComponent implements OnInit {
     noteWidth: (innerWidth * 0.89 - 100) / 32
   }
 
-  bpm = 70
+  pads$: Observable<IPad[]> = this.store.padsArr$
 
-  metronomeIsOn: boolean = true
+  bpm = 90
+
+  metronomeIsOn: boolean = false
+
+  currentXPos$ = new BehaviorSubject(0)
 
   stopHandler$ = new Subject<boolean>()
   //for time line 
@@ -88,10 +92,13 @@ export class ScalesComponent implements OnInit {
         const y = d.offsetY
         const pad = this.getPadFromYPosition(y)
         //xRelative is x position in numbers of notes width from left edge
-        const relativeX = (d.offsetX - this.settings.marginLeftForName) / this.settings.noteWidth
+        const relativeX = this.getRelativeX(d.offsetX )
         this.addNote(this.getId(), pad, relativeX)
       }
     })
+  }
+  getRelativeX(x: number) {
+    return (x - this.settings.marginLeftForName) / this.settings.noteWidth
   }
   /**
    * render g containers for lines (render before renderLines() func)
@@ -139,7 +146,9 @@ export class ScalesComponent implements OnInit {
       .attr('x', this.settings.marginLeftForName * 0.2)
     
   }
-
+  /**
+   * starp playing notes and render time line
+   */
   start() {
     this.playSamples()
     const timeForOneBar = 60000 / this.bpm
@@ -150,7 +159,8 @@ export class ScalesComponent implements OnInit {
       startWith(-1),
       takeUntil(this.stopHandler$)
     ).subscribe(() => {
-      this.renderMovingLineStatic(this.getXPosForMoveingLine(timeForOneBar / 32))
+      this.currentXPos$.next(this.getXPosForMoveingLine(timeForOneBar / 32))
+      this.renderMovingLineStatic(this.currentXPos$.getValue())
     })
   }
 
@@ -172,6 +182,18 @@ export class ScalesComponent implements OnInit {
     setTimeout(() => {
       if(this.metronomeIsOn) this.playMetronome(timeForOneBar)
       this.start()
+      fromEvent(window, 'keydown').pipe(takeUntil(this.stopHandler$)).subscribe((e) => {
+        let event: any = e
+        let pads: IPad[] = []
+        this.pads$.pipe(take(1)).subscribe(ps => pads = ps)
+        pads.forEach(pad => {
+          const padInfo = this.store.getPadInfo(pad.padName)
+          //if src not empty and you press right key 
+          if(event.key === pad.padName && padInfo.src) {
+            this.addNote(this.getId(), padInfo.padName,this.getRelativeX(this.currentXPos$.getValue()))
+          }
+        })
+      })
     }, timeForOneBar * 3)
   }
 
