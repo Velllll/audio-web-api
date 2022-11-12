@@ -1,6 +1,7 @@
 import { AfterViewInit, ChangeDetectionStrategy, Component, ElementRef, OnInit, ViewChild } from '@angular/core';
 import * as d3 from 'd3'
-import { BehaviorSubject, fromEvent, interval, startWith, Subject, takeUntil } from 'rxjs';
+import { BehaviorSubject, fromEvent, interval, startWith, Subject, take, takeUntil, timeout } from 'rxjs';
+import { StoreService } from '../../services/store/store.service';
 
 export interface INotesStorage {
   noteId: string;
@@ -26,7 +27,9 @@ export class ScalesComponent implements OnInit {
     noteWidth: (innerWidth * 0.89 - 100) / 32
   }
 
-  bpm = 90
+  bpm = 70
+
+  metronomeIsOn: boolean = true
 
   stopHandler$ = new Subject<boolean>()
   //for time line 
@@ -34,7 +37,9 @@ export class ScalesComponent implements OnInit {
 
   notesStorage$ = new BehaviorSubject<INotesStorage[]>([])
 
-  constructor() { }
+  constructor(
+    private store: StoreService
+  ) { }
 
   ngOnInit(): void {
     //appoint width and height to svg element
@@ -49,6 +54,8 @@ export class ScalesComponent implements OnInit {
     this.renderNotes()
     //render names
     this.renderPadNames()
+    //render time line on start position
+    this.renderMovingLineStatic(this.settings.marginLeftForName)
 
     fromEvent(window, 'resize').subscribe(() => {
       this.settings.height = innerHeight * 0.43
@@ -65,8 +72,6 @@ export class ScalesComponent implements OnInit {
       //render names
       this.renderPadNames()
     })
-
-
   }
   /**
    * appoint width and height to svg element 
@@ -136,19 +141,51 @@ export class ScalesComponent implements OnInit {
   }
 
   start() {
+    this.playSamples()
     const timeForOneBar = 60000 / this.bpm
-    interval(timeForOneBar).pipe(
+    if(this.metronomeIsOn) this.playMetronome(timeForOneBar)
+    
+    this.renderMovingLineStatic(this.getXPosForMoveingLine(0))
+    interval(timeForOneBar / 32).pipe(
       startWith(-1),
       takeUntil(this.stopHandler$)
     ).subscribe(() => {
-      this.renderMoveLine(timeForOneBar)
+      this.renderMovingLineStatic(this.getXPosForMoveingLine(timeForOneBar / 32))
     })
+  }
+
+  playMetronome(timeForOneBar: number) {
+    const src = 'assets/hats/hat 1.wav'
+    this.store.selectSamplePlay(src)
+    interval(timeForOneBar).pipe(takeUntil(this.stopHandler$)).subscribe(() => {
+      this.store.selectSamplePlay(src)
+    })
+  }
+
+  playSamples() {
+    
+  }
+
+  record() {
+    this.timeOut()
+    const timeForOneBar = 60000 / this.bpm
+    setTimeout(() => {
+      if(this.metronomeIsOn) this.playMetronome(timeForOneBar)
+      this.start()
+    }, timeForOneBar * 3)
+  }
+
+  timeOut() {
+    const src = 'assets/hats/hat 2.wav'
+    this.store.selectSamplePlay(src)
+    const timeForOneBar = 60000 / this.bpm
+    interval(timeForOneBar).pipe(take(this.metronomeIsOn ? 2 : 3)).subscribe(t => this.store.selectSamplePlay(src))
   }
 
   stop() {
     this.stopHandler$.next(true)
     this.curentPos.next(0)
-    this.renderMoveLine(0)
+    this.renderMovingLineStatic(this.getXPosForMoveingLine(0))
   }
 
   increaseBPM() {
@@ -161,19 +198,11 @@ export class ScalesComponent implements OnInit {
     this.stop()
   }
 
-  renderMoveLine(duration: number) {
-    let xPos: number = this.getXPosForMoveingLine(duration)
-    let d = duration
-    if(this.curentPos.getValue() === 1) d = 0
-    const transition = d3.transition()
-    .duration(d)
-    .ease(d3.easeLinear)
-
+  renderMovingLineStatic(xPos: number) {
     d3.selectAll('g.moveLine')
     .selectAll('line.moveLine')
     .data([xPos])
     .join('line')
-    .transition(transition)
     .attr('class', 'moveLine')
     .attr('x1', d => d)
     .attr('x2', d => d)
@@ -364,14 +393,14 @@ export class ScalesComponent implements OnInit {
     return random + random
   }
 
-  getXPosForMoveingLine(duration: number) {
-    if(this.curentPos.getValue() === 33) this.curentPos.next(0)
+  getXPosForMoveingLine(duration: number): number {
+    if(this.curentPos.getValue() === 508) this.curentPos.next(0)
     if(!duration) {
       return this.settings.marginLeftForName
     } else {
       const pos = this.curentPos.getValue()
       this.curentPos.next(this.curentPos.getValue() + 1)
-      return (this.curentPos.getValue() - 1) * this.settings.noteWidth + this.settings.marginLeftForName
+      return (this.curentPos.getValue() - 1) * this.settings.noteWidth * 0.0625 + this.settings.marginLeftForName
     }
   }
 }
