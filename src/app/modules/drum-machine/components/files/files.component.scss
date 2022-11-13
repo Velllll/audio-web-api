@@ -9,6 +9,11 @@
         font-size: 35px;
         text-align: center;
         margin: 15px 0;
+
+        @media (max-height: 730px) {
+            font-size: 20px;
+            line-height: 25px;
+        }
     }
     .mat-expansion-panel {
         background-color: rgb(255, 255, 255);
@@ -19,11 +24,18 @@
         .mat-expansion-panel-header-title{
             color: rgb(0, 0, 0);
             font-size: 25px;
+
+            @media (max-height: 730px) {
+                height: 30px;
+                font-size: 15px;
+                line-height: 20px;
+            }
         }
     }
     .samples {
         margin: 10px 0;
         font-size: 20px;
+        
 
         .sample-info {
             display: flex;
@@ -62,6 +74,7 @@
             }
             span {
                 font-size: 15px;
+               
             }
         }
     }

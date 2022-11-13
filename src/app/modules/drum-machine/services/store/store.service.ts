@@ -2,6 +2,7 @@ import { Injectable } from '@angular/core';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { BehaviorSubject, map, Observable } from 'rxjs';
 import { SnackBarWarningComponent } from '../../components/files/snack-bar-warning/snack-bar-warning.component';
+import { INotesStorage } from '../../components/scales/scales.component';
 
 export interface ISample {
   sampleName: string;
@@ -43,32 +44,44 @@ export class StoreService {
       folderID: 713298625,
       name: 'Kiks', 
       samples: [
-        {sampleName: 'a', src: 'assets/kicks/a.wav', sampleId: 95720},
-        {sampleName: 'b', src: 'assets/kicks/b.wav', sampleId: 720546 },
-        {sampleName: 'c', src: 'assets/kicks/c.wav', sampleId: 95723 },
+        {sampleName: 'kick#1', src: 'assets/kicks/kick_1.wav', sampleId: 95720},
+        {sampleName: 'kick#2', src: 'assets/kicks/kick_2.wav', sampleId: 720546 },
+        {sampleName: 'kick#3', src: 'assets/kicks/kick_3.wav', sampleId: 95723 },
+        {sampleName: 'kick#4', src: 'assets/kicks/kick_4.wav', sampleId: 955323 },
+        {sampleName: 'kick#5', src: 'assets/kicks/kick_5.wav', sampleId: 9570023 },
       ]
     },
     {
       folderID: 718625,
       name: 'Hats',
       samples: [
-        {sampleName: 'grit hat', src: 'assets/hats/grit hat.wav', sampleId: 9574},
-        {sampleName: 'hat 1', src: 'assets/hats/hat 1.wav', sampleId: 9573},
+        {sampleName: 'hat#1', src: 'assets/hats/hat_1.wav', sampleId: 1574},
+        {sampleName: 'hat#2', src: 'assets/hats/hat_3.wav', sampleId: 74},
+        {sampleName: 'hihat#1', src: 'assets/hats/hihat_1.wav', sampleId: 9574},
+        {sampleName: 'hihat#2', src: 'assets/hats/hihat_2.wav', sampleId: 94},
+        {sampleName: 'hihat#3', src: 'assets/hats/hihat_3.wav', sampleId: 574},
+        {sampleName: 'openhihat#1', src: 'assets/hats/openhihat_1.wav', sampleId: 95344},
+        {sampleName: 'openhihat#2', src: 'assets/hats/openhihat_2.wav', sampleId: 954323},
       ]
     },
     {
       folderID: 74325,
       name: 'Percs',
       samples: [
-        {sampleName: 'perc1', src: 'assets/percs/perc1.wav', sampleId: 9572},
+        {sampleName: 'perc#1', src: 'assets/percs/perc_1.wav', sampleId: 9572},
+        {sampleName: 'perc#2', src: 'assets/percs/perc_2.wav', sampleId: 9500},
+        {sampleName: 'perc#3', src: 'assets/percs/perc_3.wav', sampleId: 9551},
       ]
     },
     {
       folderID: 712312345,
       name: 'Snares',
       samples: [
-        {sampleName: 'e', src: 'assets/snares/e.wav', sampleId: 9571},
-        {sampleName: 'dilla snare - Part_1', src: 'assets/snares/dilla snare - Part_1.wav', sampleId: 9571345 },
+        {sampleName: 'snare#1', src: 'assets/snares/snare_1.wav', sampleId: 9571340 },
+        {sampleName: 'snare#2', src: 'assets/snares/snare_2.wav', sampleId: 9571341 },
+        {sampleName: 'snare#3', src: 'assets/snares/snare_3.wav', sampleId: 9571342 },
+        {sampleName: 'snare#4', src: 'assets/snares/snare_4.wav', sampleId: 9571343 },
+        {sampleName: 'snare#5', src: 'assets/snares/snare_5.wav', sampleId: 9571344 },
       ]
     }
   ])
@@ -76,20 +89,20 @@ export class StoreService {
   private pads$: BehaviorSubject<IPads> = new BehaviorSubject({
     q: {
       padName: 'q',
-      src: 'assets/kicks/a.wav',
-      sampleName: 'a',
+      src: '',
+      sampleName: '',
       volume: 0.5
     },
     w: {
       padName: 'w',
-      src: 'assets/snares/dilla snare - Part_1.wav',
-      sampleName: 'dilla snare - Part_1',
+      src: '',
+      sampleName: '',
       volume: 0.5
     },
     e: {
       padName: 'e',
-      src: 'assets/hats/hat 1.wav',
-      sampleName: 'hat 1',
+      src: '',
+      sampleName: '',
       volume: 0.5
     },
     a: {
@@ -138,7 +151,9 @@ export class StoreService {
 
   constructor(
     private snackBar: MatSnackBar
-  ) { }
+  ) { 
+    this.loadPadsFromStorage()
+  }
 
   playSample(src: string, volume: number) {
     const audio = new Audio(src)
@@ -188,5 +203,19 @@ export class StoreService {
         volume
       }
     })
+  }
+
+  savePadsAndNotes(notes: INotesStorage[]) {
+    localStorage.removeItem('notes')
+    localStorage.removeItem('pads')
+    localStorage.setItem('notes', JSON.stringify(notes))
+    localStorage.setItem('pads', JSON.stringify(this.pads$.getValue()))
+  }
+
+  loadPadsFromStorage() {
+    const pads = localStorage.getItem('pads')
+    if(pads) {
+      this.pads$.next(JSON.parse(pads))
+    }
   }
 }

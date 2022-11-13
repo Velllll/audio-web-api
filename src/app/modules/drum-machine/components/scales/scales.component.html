@@ -1,18 +1,34 @@
 <div class="container">
     <div class="settings">
         <div class="handlers">
-            <mat-icon  (click)="start()">play_arrow</mat-icon>
-            <mat-icon (click)="stop()">close</mat-icon>
-            <mat-icon (click)="record()">fiber_manual_record</mat-icon>
-            <mat-icon (click)="saveStorage()">save</mat-icon>
+            <button (click)="start()" [disabled]="disablePlayButton | async"> 
+                <mat-icon >play_arrow</mat-icon>
+            </button>
+            <button (click)="stop()">
+                <mat-icon>stop_circle</mat-icon>
+            </button>
+            <button (click)="record()" [disabled]="disablePlayButton | async">
+                <mat-icon>fiber_manual_record</mat-icon>
+            </button>
         </div>
+
         <div class="bpm-container">
             <div class="bpm">BPM:{{bpm}}</div>
             <div class="handlers">
-                <mat-icon  (click)="increaseBPM()">expand_less</mat-icon>
-                <mat-icon  (click)="deincreaseBPM()">expand_more</mat-icon>
+                <mat-icon (click)="increaseBPM()">expand_less</mat-icon>
+                <mat-icon (click)="deincreaseBPM()">expand_more</mat-icon>
             </div>
         </div>
+
+        <div class="save-remove">
+            <button (click)="clear()" [disabled]="disablePlayButton | async">
+                <mat-icon >delete_forever</mat-icon>
+            </button>
+            <button (click)="saveStorage()" [disabled]="disablePlayButton | async">
+                <mat-icon>save</mat-icon>
+            </button>
+        </div>
+        
     </div>
     <div class="scales-container">
         <svg class="scales-svg"></svg>

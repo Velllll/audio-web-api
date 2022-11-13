@@ -1,6 +1,7 @@
 import { ChangeDetectionStrategy, Component, OnChanges, OnInit, SimpleChanges } from '@angular/core';
 import { FormControl, FormGroup } from '@angular/forms';
 import { BehaviorSubject, combineLatest, debounceTime, fromEvent, map, Observable, startWith, take } from 'rxjs';
+import { ScreenControlService } from '../../services/screen-control/screen-control.service';
 import { IPad, IPads, StoreService } from '../../services/store/store.service';
 
 @Component({
@@ -18,11 +19,15 @@ export class PadsComponent implements OnInit {
     volume: new FormControl(1)
   })
 
+  screen$ = this.screenSize.screenSize$
+
   constructor(
-    private store: StoreService
+    private store: StoreService,
+    private screenSize: ScreenControlService
   ) { }
 
   ngOnInit(): void {
+    
     combineLatest([fromEvent(window, 'keydown')]).subscribe(([e]) => {
       let event: any = e
       let pads: IPad[] = []

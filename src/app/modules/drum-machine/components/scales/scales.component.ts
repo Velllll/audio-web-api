@@ -41,15 +41,17 @@ export class ScalesComponent implements OnInit {
 
   pads$: Observable<IPad[]> = this.store.padsArr$
 
-  bpm = 95
+  bpm = 93
 
   metronomeIsOn: boolean = false
 
-  currentXPos$ = new BehaviorSubject(0)
-
-  stopHandler$ = new Subject<boolean>()
   //for time line 
   curentPos = new BehaviorSubject(0)
+  currentXPos$ = new BehaviorSubject(0)
+
+  disablePlayButton = new BehaviorSubject(false)
+
+  stopHandler$ = new Subject<boolean>()
 
   notesStorage$ = new BehaviorSubject<INotesStorage[]>([])
 
@@ -71,13 +73,13 @@ export class ScalesComponent implements OnInit {
     //render names
     this.renderPadNames()
     //render time line on start position
-    this.renderMovingLineStatic(this.settings.marginLeftForName)
+    this.renderMovingLineStatic([this.settings.marginLeftForName])
 
     fromEvent(window, 'resize').subscribe(() => {
       this.settings.height = innerHeight * 0.43
       this.settings.width = innerWidth * 0.89
       this.settings.barWidth = (innerWidth * 0.89 - this.settings.marginLeftForName) / 4
-      this.settings.noteHeight = innerHeight * 0.43 / 8
+      this.settings.noteHeight = innerHeight * 0.43 / 9
       this.settings.noteWidth = (innerWidth * 0.89 - this.settings.marginLeftForName) / 32
       //update svg size
       this.renderSvg()
@@ -130,6 +132,9 @@ export class ScalesComponent implements OnInit {
 
     this.svg.append('g')
     .attr('class', 'titlesForPads')
+
+    this.svg.append('g')
+    .attr('class', 'notes')
   }
 
   renderPadNames() {
@@ -160,6 +165,7 @@ export class ScalesComponent implements OnInit {
    * starp playing notes and render time line
    */
   start() {
+    this.disablePlayButton.next(true)
     const data: IPlayData = {
       q: {
         src: '',
@@ -219,21 +225,29 @@ export class ScalesComponent implements OnInit {
     const timeForOneBar = 60000 / this.bpm
     if(this.metronomeIsOn) this.playMetronome(timeForOneBar)
     
-    this.renderMovingLineStatic(this.getXPosForMoveingLine(0))
     interval(timeForOneBar / 2).pipe(
       startWith(-1),
       takeUntil(this.stopHandler$)
     ).subscribe(() => {
       this.currentXPos$.next(this.getXPosForMoveingLine(timeForOneBar))
-      this.renderMovingLineStatic(this.currentXPos$.getValue())
+    })
+    interval(60000 / this.bpm * 16).pipe(takeUntil(this.stopHandler$), startWith(0)).subscribe(() => {
+      this.renderMovingLineStatic([this.settings.marginLeftForName])
+      this.renderMovingLineStatic([this.settings.width])
     })
   }
 
+  clear() {
+    this.notesStorage$.next([])
+    this.svg.selectAll('g.notes').selectAll('rect').remove()
+    this.stop()
+  }
+
   playMetronome(timeForOneBar: number) {
-    const src = 'assets/hats/hat 1.wav'
-    this.store.selectSamplePlay(src)
+    const src = 'assets/hats/hat_2.wav'
+    this.store.playSample(src, 0.2)
     interval(timeForOneBar).pipe(takeUntil(this.stopHandler$)).subscribe(() => {
-      this.store.selectSamplePlay(src)
+      this.store.playSample(src, 0.2)
     })
   }
   //only this way function work!!!
@@ -243,69 +257,70 @@ export class ScalesComponent implements OnInit {
     //q
     interval(timeBar).pipe(takeUntil(this.stopHandler$), startWith(-1)).subscribe(i => {
       const pos = this.curentPos.getValue() !== 32 ? this.curentPos.getValue() : 0
-      if(data.q.pos.includes(pos)) {
+      if(data.q.pos.includes(pos) && data.q.src) {
         this.store.playSample(data.q.src, data.q.volume)
       }
     })
     //w
     interval(timeBar).pipe(takeUntil(this.stopHandler$), startWith(-1)).subscribe(i => {
       const pos = this.curentPos.getValue() !== 32 ? this.curentPos.getValue() : 0
-      if(data.w.pos.includes(pos)) {
+      if(data.w.pos.includes(pos) && data.w.src) {
         this.store.playSample(data.w.src, data.w.volume)
       }
     })
     //e
     interval(timeBar).pipe(takeUntil(this.stopHandler$), startWith(-1)).subscribe(i => {
       const pos = this.curentPos.getValue() !== 32 ? this.curentPos.getValue() : 0
-      if(data.e.pos.includes(pos)) {
+      if(data.e.pos.includes(pos) && data.e.src) {
         this.store.playSample(data.e.src, data.e.volume)
       }
     })
     //a
     interval(timeBar).pipe(takeUntil(this.stopHandler$), startWith(-1)).subscribe(i => {
       const pos = this.curentPos.getValue() !== 32 ? this.curentPos.getValue() : 0
-      if(data.a.pos.includes(pos)) {
+      if(data.a.pos.includes(pos) && data.a.src) {
         this.store.playSample(data.a.src, data.a.volume)
       }
     })
     //s
     interval(timeBar).pipe(takeUntil(this.stopHandler$), startWith(-1)).subscribe(i => {
       const pos = this.curentPos.getValue() !== 32 ? this.curentPos.getValue() : 0
-      if(data.s.pos.includes(pos)) {
+      if(data.s.pos.includes(pos) && data.s.src) {
         this.store.playSample(data.s.src, data.s.volume)
       }
     })
     //d
     interval(timeBar).pipe(takeUntil(this.stopHandler$), startWith(-1)).subscribe(i => {
       const pos = this.curentPos.getValue() !== 32 ? this.curentPos.getValue() : 0
-      if(data.d.pos.includes(pos)) {
+      if(data.d.pos.includes(pos) && data.d.src) {
         this.store.playSample(data.d.src, data.d.volume)
       }
     })
     //z
     interval(timeBar).pipe(takeUntil(this.stopHandler$), startWith(-1)).subscribe(i => {
       const pos = this.curentPos.getValue() !== 32 ? this.curentPos.getValue() : 0
-      if(data.z.pos.includes(pos)) {
+      if(data.z.pos.includes(pos) && data.z.src) {
         this.store.playSample(data.z.src, data.z.volume)
       }
     })
     //x
     interval(timeBar).pipe(takeUntil(this.stopHandler$), startWith(-1)).subscribe(i => {
       const pos = this.curentPos.getValue() !== 32 ? this.curentPos.getValue() : 0
-      if(data.x.pos.includes(pos)) {
+      if(data.x.pos.includes(pos) && data.x.src) {
         this.store.playSample(data.x.src, data.x.volume)
       }
     })
     //c
     interval(timeBar).pipe(takeUntil(this.stopHandler$), startWith(-1)).subscribe(i => {
       const pos = this.curentPos.getValue() !== 32 ? this.curentPos.getValue() : 0
-      if(data.c.pos.includes(pos)) {
+      if(data.c.pos.includes(pos) && data.c.src) {
         this.store.playSample(data.c.src, data.c.volume)
       }
     })
   }
 
   record() {
+    this.disablePlayButton.next(true)
     this.timeOut()
     const timeForOneBar = 60000 / this.bpm
     setTimeout(() => {
@@ -329,16 +344,17 @@ export class ScalesComponent implements OnInit {
   }
 
   timeOut() {
-    const src = 'assets/hats/hat 2.wav'
-    this.store.selectSamplePlay(src)
+    const src = 'assets/hats/hat_2.wav'
+    this.store.playSample(src, 0.2)
     const timeForOneBar = 60000 / this.bpm
-    interval(timeForOneBar).pipe(take(this.metronomeIsOn ? 2 : 3)).subscribe(t => this.store.selectSamplePlay(src))
+    interval(timeForOneBar).pipe(take(this.metronomeIsOn ? 2 : 3)).subscribe(t => this.store.playSample(src, 0.2))
   }
 
   stop() {
+    this.disablePlayButton.next(false)
     this.stopHandler$.next(true)
     this.curentPos.next(0)
-    this.renderMovingLineStatic(this.getXPosForMoveingLine(0))
+    this.renderMovingLineStatic([this.getXPosForMoveingLine(0)])
   }
 
   increaseBPM() {
@@ -351,11 +367,15 @@ export class ScalesComponent implements OnInit {
     this.stop()
   }
 
-  renderMovingLineStatic(xPos: number) {
+  renderMovingLineStatic(xPos: number[]) {
+    let t: d3.Transition<d3.BaseType, unknown, null, undefined> = d3.transition().duration(60000 / this.bpm * 16).ease(d3.easeLinear)
+    if(xPos[0] === this.settings.marginLeftForName) t = d3.transition().duration(0).ease(d3.easeLinear)
+    
     d3.selectAll('g.moveLine')
     .selectAll('line.moveLine')
-    .data([xPos])
+    .data(xPos)
     .join('line')
+    .transition(t)
     .attr('class', 'moveLine')
     .attr('x1', d => d)
     .attr('x2', d => d)
@@ -418,8 +438,7 @@ export class ScalesComponent implements OnInit {
    * save local data from this.notesStorage$ to database or localStorage
    */
   saveStorage() {
-    localStorage.removeItem('notes')
-    localStorage.setItem('notes', JSON.stringify(this.notesStorage$.getValue()))
+    this.store.savePadsAndNotes(this.notesStorage$.getValue())
   }
 
   loadNotesFromStorage() {
@@ -451,7 +470,8 @@ export class ScalesComponent implements OnInit {
 
     const strokeWidth = 1
     
-    this.svg.selectAll("rect." + noteId)
+    this.svg.selectAll('g.notes')
+    .selectAll("rect." + noteId)
     .data([{x: x, y: y}])
     .join(`rect`)
       .attr('class', noteId)
@@ -464,7 +484,7 @@ export class ScalesComponent implements OnInit {
       .attr('stroke-width', strokeWidth)
       .call(d3.drag<any, any>()
       .on("drag", (event: any, d: any) => {
-        if(event.x > this.settings.marginLeftForName && event.x + this.settings.noteWidth < this.settings.width) {
+        if(event.x > this.settings.marginLeftForName && event.x  < this.settings.width) {
           const floorXPos = Math.floor((event.x - this.settings.marginLeftForName) / this.settings.noteWidth) * this.settings.noteWidth + this.settings.marginLeftForName
           d3.selectAll("rect." + noteId).raise().attr("x", (d.x = floorXPos))
           //updateLocalStorage

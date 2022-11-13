@@ -4,12 +4,15 @@
             <div class="name pad-name">
                 Pad: {{currentPad.padName ? currentPad.padName : 'Select pad'}}
             </div>
-            <div class="volume-container" *ngIf="currentPad.padName">
-                <form [formGroup]="volumeForm">
-                    <div class="volume">Volume: {{getVolume()}}</div>
-                    <input formControlName="volume" min="0" max="1" step="0.1" value="0.5" type="range"> 
-                </form>
-            </div>
+            <ng-container *ngIf="(screen$ | async) as screen">
+                <div class="volume-container" *ngIf="currentPad.padName && screen.height > 600">
+                    <form [formGroup]="volumeForm">
+                        <div class="volume">Volume: {{getVolume()}}</div>
+                        <input formControlName="volume" min="0" max="1" step="0.1" value="0.5" type="range"> 
+                    </form>
+                </div>
+            </ng-container>
+
             <div class="name sample-name">
                 Sample: {{currentPad.sampleName ? currentPad.sampleName : 'Pad is empty'}}
             </div>

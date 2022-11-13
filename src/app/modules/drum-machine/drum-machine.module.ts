@@ -34,6 +34,8 @@ import {MatSnackBarModule} from '@angular/material/snack-bar';
     MatSnackBarModule,
     
   ],
-  providers: [StoreService]
+  providers: [
+    StoreService,
+  ]
 })
 export class DrumMachineModule { }
