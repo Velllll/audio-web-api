@@ -107,7 +107,7 @@ export class ScalesComponent implements OnInit {
         const pad = this.getPadFromYPosition(y)
         //xRelative is x position in numbers of notes width from left edge
         const relativeX = this.getRelativeX(d.offsetX)
-        this.addNote(this.getId(), pad, relativeX)
+        this.renderAndAddNote(this.getId(), pad, relativeX)
       }
     })
   }
@@ -161,211 +161,6 @@ export class ScalesComponent implements OnInit {
       .attr('x', this.settings.marginLeftForName * 0.2)
     
   }
-  /**
-   * starp playing notes and render time line
-   */
-  start() {
-    this.disablePlayButton.next(true)
-    const data: IPlayData = {
-      q: {
-        src: '',
-        volume: 0,
-        pos: []
-      },
-      w: {
-        src: '',
-        volume: 0,
-        pos: []
-      },
-      e: {
-        src: '',
-        volume: 0,
-        pos: []
-      },
-      a: {
-        src: '',
-        volume: 0,
-        pos: []
-      },
-      s: {
-        src: '',
-        volume: 0,
-        pos: []
-      },
-      d: {
-        src: '',
-        volume: 0,
-        pos: []
-      },
-      z: {
-        src: '',
-        volume: 0,
-        pos: []
-      },
-      x: {
-        src: '',
-        volume: 0,
-        pos: []
-      },
-      c: {
-        src: '',
-        volume: 0,
-        pos: []
-      }
-    }
-    this.notesStorage$.getValue().forEach(d => {
-      const info = this.store.getPadInfo(d.pad)
-      data[d.pad as keyof IPlayData] = {src: info.src, volume: info.volume, pos: []}
-    })
-    this.notesStorage$.getValue().forEach(d => {
-      data[d.pad as keyof IPlayData].pos.push(d.relativeX)
-    })
-    this.playSamples(data)
-
-    const timeForOneBar = 60000 / this.bpm
-    if(this.metronomeIsOn) this.playMetronome(timeForOneBar)
-    
-    interval(timeForOneBar / 2).pipe(
-      startWith(-1),
-      takeUntil(this.stopHandler$)
-    ).subscribe(() => {
-      this.currentXPos$.next(this.getXPosForMoveingLine(timeForOneBar))
-    })
-    interval(60000 / this.bpm * 16).pipe(takeUntil(this.stopHandler$), startWith(0)).subscribe(() => {
-      this.renderMovingLineStatic([this.settings.marginLeftForName])
-      this.renderMovingLineStatic([this.settings.width])
-    })
-  }
-
-  clear() {
-    this.notesStorage$.next([])
-    this.svg.selectAll('g.notes').selectAll('rect').remove()
-    this.stop()
-  }
-
-  playMetronome(timeForOneBar: number) {
-    const src = 'assets/hats/hat_2.wav'
-    this.store.playSample(src, 0.2)
-    interval(timeForOneBar).pipe(takeUntil(this.stopHandler$)).subscribe(() => {
-      this.store.playSample(src, 0.2)
-    })
-  }
-  //only this way function work!!!
-  playSamples(data: IPlayData) {
-    const timeBar = 60000 / this.bpm / 2
-
-    //q
-    interval(timeBar).pipe(takeUntil(this.stopHandler$), startWith(-1)).subscribe(i => {
-      const pos = this.curentPos.getValue() !== 32 ? this.curentPos.getValue() : 0
-      if(data.q.pos.includes(pos) && data.q.src) {
-        this.store.playSample(data.q.src, data.q.volume)
-      }
-    })
-    //w
-    interval(timeBar).pipe(takeUntil(this.stopHandler$), startWith(-1)).subscribe(i => {
-      const pos = this.curentPos.getValue() !== 32 ? this.curentPos.getValue() : 0
-      if(data.w.pos.includes(pos) && data.w.src) {
-        this.store.playSample(data.w.src, data.w.volume)
-      }
-    })
-    //e
-    interval(timeBar).pipe(takeUntil(this.stopHandler$), startWith(-1)).subscribe(i => {
-      const pos = this.curentPos.getValue() !== 32 ? this.curentPos.getValue() : 0
-      if(data.e.pos.includes(pos) && data.e.src) {
-        this.store.playSample(data.e.src, data.e.volume)
-      }
-    })
-    //a
-    interval(timeBar).pipe(takeUntil(this.stopHandler$), startWith(-1)).subscribe(i => {
-      const pos = this.curentPos.getValue() !== 32 ? this.curentPos.getValue() : 0
-      if(data.a.pos.includes(pos) && data.a.src) {
-        this.store.playSample(data.a.src, data.a.volume)
-      }
-    })
-    //s
-    interval(timeBar).pipe(takeUntil(this.stopHandler$), startWith(-1)).subscribe(i => {
-      const pos = this.curentPos.getValue() !== 32 ? this.curentPos.getValue() : 0
-      if(data.s.pos.includes(pos) && data.s.src) {
-        this.store.playSample(data.s.src, data.s.volume)
-      }
-    })
-    //d
-    interval(timeBar).pipe(takeUntil(this.stopHandler$), startWith(-1)).subscribe(i => {
-      const pos = this.curentPos.getValue() !== 32 ? this.curentPos.getValue() : 0
-      if(data.d.pos.includes(pos) && data.d.src) {
-        this.store.playSample(data.d.src, data.d.volume)
-      }
-    })
-    //z
-    interval(timeBar).pipe(takeUntil(this.stopHandler$), startWith(-1)).subscribe(i => {
-      const pos = this.curentPos.getValue() !== 32 ? this.curentPos.getValue() : 0
-      if(data.z.pos.includes(pos) && data.z.src) {
-        this.store.playSample(data.z.src, data.z.volume)
-      }
-    })
-    //x
-    interval(timeBar).pipe(takeUntil(this.stopHandler$), startWith(-1)).subscribe(i => {
-      const pos = this.curentPos.getValue() !== 32 ? this.curentPos.getValue() : 0
-      if(data.x.pos.includes(pos) && data.x.src) {
-        this.store.playSample(data.x.src, data.x.volume)
-      }
-    })
-    //c
-    interval(timeBar).pipe(takeUntil(this.stopHandler$), startWith(-1)).subscribe(i => {
-      const pos = this.curentPos.getValue() !== 32 ? this.curentPos.getValue() : 0
-      if(data.c.pos.includes(pos) && data.c.src) {
-        this.store.playSample(data.c.src, data.c.volume)
-      }
-    })
-  }
-
-  record() {
-    this.disablePlayButton.next(true)
-    this.timeOut()
-    const timeForOneBar = 60000 / this.bpm
-    setTimeout(() => {
-      if(this.metronomeIsOn) this.playMetronome(timeForOneBar)
-      this.start()
-
-      fromEvent(window, 'keydown').pipe(takeUntil(this.stopHandler$)).subscribe((e) => {
-        let event: any = e
-        let pads: IPad[] = []
-        this.pads$.pipe(take(1)).subscribe(ps => pads = ps)
-        pads.forEach(pad => {
-          const padInfo = this.store.getPadInfo(pad.padName)
-          //if src not empty and you press right key 
-          if(event.key === pad.padName && padInfo.src) {
-            this.addNote(this.getId(), padInfo.padName, this.curentPos.getValue() - 1)
-          }
-        })
-      })
-
-    }, timeForOneBar * 3)
-  }
-
-  timeOut() {
-    const src = 'assets/hats/hat_2.wav'
-    this.store.playSample(src, 0.2)
-    const timeForOneBar = 60000 / this.bpm
-    interval(timeForOneBar).pipe(take(this.metronomeIsOn ? 2 : 3)).subscribe(t => this.store.playSample(src, 0.2))
-  }
-
-  stop() {
-    this.disablePlayButton.next(false)
-    this.stopHandler$.next(true)
-    this.curentPos.next(0)
-    this.renderMovingLineStatic([this.getXPosForMoveingLine(0)])
-  }
-
-  increaseBPM() {
-    this.bpm++
-    this.stop()
-  }
-
-  deincreaseBPM() {
-    this.bpm--
-    this.stop()
-  }
 
   renderMovingLineStatic(xPos: number[]) {
     let t: d3.Transition<d3.BaseType, unknown, null, undefined> = d3.transition().duration(60000 / this.bpm * 16).ease(d3.easeLinear)
@@ -385,14 +180,31 @@ export class ScalesComponent implements OnInit {
     .attr('stroke-width', 4)
   }
 
+  renderMovingLine() {
+    const timeForOneBar = 60000 / this.bpm
+    interval(timeForOneBar / 2).pipe(
+      startWith(-1),
+      takeUntil(this.stopHandler$)
+    ).subscribe(() => {
+      this.currentXPos$.next(this.getXPosForMoveingLine(timeForOneBar))
+    })
+    interval(60000 / this.bpm * 16).pipe(takeUntil(this.stopHandler$), startWith(0)).subscribe(() => {
+      this.renderMovingLineStatic([this.settings.marginLeftForName])
+      this.renderMovingLineStatic([this.settings.width])
+    })
+  }
+
   renderNotes() {
-      this.notesStorage$.getValue().forEach(note => {
-        this.addNote(note.noteId, note.pad, note.relativeX)
-      })
+    this.notesStorage$.getValue().forEach(note => {
+      this.renderAndAddNote(note.noteId, note.pad, note.relativeX)
+    })
   }
 
   renderLines() {    
-    const dataLines0 = [this.settings.marginLeftForName, this.settings.barWidth + this.settings.marginLeftForName, this.settings.barWidth * 2 + this.settings.marginLeftForName, this.settings.barWidth * 3 + this.settings.marginLeftForName]
+    const dataLines0 = Array(4)
+      .fill(1)
+      .map((_, i) => this.settings.barWidth * i + this.settings.marginLeftForName)
+
     d3.selectAll('g.verticalBars')
       .selectAll('line.verticalBars')
       .data(dataLines0)
@@ -405,7 +217,10 @@ export class ScalesComponent implements OnInit {
       .attr('y1', 0)
       .attr('y2', this.settings.height)
 
-    const dataLines1 = [this.settings.noteHeight, this.settings.noteHeight * 2, this.settings.noteHeight * 3, this.settings.noteHeight * 4, this.settings.noteHeight * 5, this.settings.noteHeight * 6, this.settings.noteHeight * 7, this.settings.noteHeight * 8]
+    const dataLines1 = Array(9)
+      .fill(1)
+      .map((_, i) => this.settings.noteHeight * i)
+
     d3.selectAll('g.hrPads')
       .selectAll('line.hrPads')
       .data(dataLines1)
@@ -414,16 +229,15 @@ export class ScalesComponent implements OnInit {
       .attr('x1', 0)
       .attr('x2', this.settings.width)
       .attr('y1', (y) => y)
-      .attr('y2', (y) => y)
-      .attr('stroke', 'black')
-    
-    const dataLines2: number[] = []
-    for(let i = 0; i <= 16; i++) {
-      const x = this.settings.marginLeftForName + this.settings.barWidth / 4 * i
-      dataLines2.push(x)
-    }
+     .attr('y2', (y) => y)
+     .attr('stroke', 'black')
+  
+   const dataLines2: number[] = Array(17)
+     .fill(1)
+      .map((_, i) => this.settings.marginLeftForName + this.settings.barWidth / 4 * i)
+
     d3.selectAll('g.verticalIntoBars')
-      .selectAll('line.verticalIntoBars')
+     .selectAll('line.verticalIntoBars')
       .data(dataLines2)
       .join('line')
       .attr('class', 'verticalIntoBars')
@@ -434,22 +248,8 @@ export class ScalesComponent implements OnInit {
       .attr('y1', 0)
       .attr('y2', this.settings.height)
   }
-  /**
-   * save local data from this.notesStorage$ to database or localStorage
-   */
-  saveStorage() {
-    this.store.savePadsAndNotes(this.notesStorage$.getValue())
-  }
 
-  loadNotesFromStorage() {
-    const jsonData = localStorage.getItem('notes')
-    if(jsonData) {
-      const notes: INotesStorage[] | null = JSON.parse(jsonData)
-      if(notes) this.notesStorage$.next(notes)
-    }
-  }
-  //add and render notes 
-  addNote(noteId: string, pad: string, relativeX: number) {
+  renderAndAddNote(noteId: string, pad: string, relativeX: number) {
     relativeX = Math.floor(relativeX)
     const x = relativeX * this.settings.noteWidth + this.settings.marginLeftForName
     //if notesStorage is empty add new notes
@@ -505,47 +305,174 @@ export class ScalesComponent implements OnInit {
     });
   }
 
-  ////////////////////////////////////////////////////////////////////////
+  /**
+   * starp playing notes and render time line
+   */
+  start() {
+    this.disablePlayButton.next(true)
+
+    const data = this.sortDataForPlaying()
+    this.playSamples(data)
+
+    const timeForOneBar = 60000 / this.bpm
+    //play metronome if is on
+    if(this.metronomeIsOn) this.playMetronome(timeForOneBar)
+    //start rendering time line
+    this.renderMovingLine()
+  }
+
+  playSamples(data: IPlayData) {
+    const timeBar = 60000 / this.bpm / 2
+    const values = ['q', 'w', 'e', 'a', 's', 'd', 'z', 'x', 'c']
+    //starting all pads
+    for(let i = 0; i < 9; i++) {
+      interval(timeBar).pipe(takeUntil(this.stopHandler$), startWith(-1)).subscribe(() => {
+        const pos = this.curentPos.getValue() !== 32 ? this.curentPos.getValue() : 0
+        if(data[values[i] as keyof IPlayData].pos.includes(pos) && data[values[i] as keyof IPlayData].src) {
+          this.store.playSample(data[values[i] as keyof IPlayData].src, data[values[i] as keyof IPlayData].volume)
+        }
+      })
+    }
+  }
+
+  stop() {
+    this.disablePlayButton.next(false)
+    this.stopHandler$.next(true)
+    this.curentPos.next(0)
+    this.renderMovingLineStatic([this.getXPosForMoveingLine(0)])
+  }
+
+  clear() {
+    this.notesStorage$.next([])
+    this.svg.selectAll('g.notes').selectAll('rect').remove()
+    this.stop()
+  }
+
+  playMetronome(timeForOneBar: number) {
+    const src = 'assets/hats/hat_2.wav'
+    this.store.playSample(src, 0.2)
+    interval(timeForOneBar).pipe(takeUntil(this.stopHandler$)).subscribe(() => {
+      this.store.playSample(src, 0.2)
+    })
+  }
+
+  record() {
+    this.disablePlayButton.next(true)
+    this.timeOut()
+    const timeForOneBar = 60000 / this.bpm
+    setTimeout(() => {
+      if(this.metronomeIsOn) this.playMetronome(timeForOneBar)
+      this.start()
+      fromEvent(window, 'keydown').pipe(takeUntil(this.stopHandler$)).subscribe((e) => {
+        let event: any = e
+        let pads: IPad[] = []
+        this.pads$.pipe(take(1)).subscribe(ps => pads = ps)
+        pads.forEach(pad => {
+          const padInfo = this.store.getPadInfo(pad.padName)
+          //if src not empty and you press right key 
+          if(event.key === pad.padName && padInfo.src) {
+            this.renderAndAddNote(this.getId(), padInfo.padName, this.curentPos.getValue() - 1)
+          }
+        })
+      })
+
+    }, timeForOneBar * 3)
+  }
+
+  timeOut() {
+    const src = 'assets/hats/hat_2.wav'
+    this.store.playSample(src, 0.2)
+    const timeForOneBar = 60000 / this.bpm
+    interval(timeForOneBar).pipe(take(this.metronomeIsOn ? 2 : 3)).subscribe(t => this.store.playSample(src, 0.2))
+  }
+
+  increaseBPM() {
+    this.bpm++
+    this.stop()
+  }
+
+  deincreaseBPM() {
+    this.bpm--
+    this.stop()
+  }
+
+  /**
+   * save local data from this.notesStorage$ to database or localStorage
+   */
+  saveStorage() {
+    this.store.savePadsAndNotes(this.notesStorage$.getValue())
+  }
+
+  loadNotesFromStorage() {
+    const jsonData = localStorage.getItem('notes')
+    if(jsonData) {
+      const notes: INotesStorage[] | null = JSON.parse(jsonData)
+      if(notes) this.notesStorage$.next(notes)
+    } else {
+      //default notes for scales
+      this.notesStorage$.next([
+        {noteId: "aygsncaygsnc", pad: "w", relativeX: 2},
+        {noteId: "tgqgilkttgqgilkt", pad: "w", relativeX: 6},
+        {noteId: "pphwqpphwq", pad: "w", relativeX: 10},
+        {noteId: "asjjoqvasjjoqv", pad: "w", relativeX: 14},
+        {noteId: "hitllglqxhitllglqx", pad: "w", relativeX: 18},
+        {noteId: "jerjjerj", pad: "w", relativeX: 22},
+        {noteId: "qakmighaqakmigha", pad: "w", relativeX: 26},
+        {noteId: "aclartkbgaclartkbg", pad: "w", relativeX: 30},
+        {noteId: "sggsjzmsggsjzm", pad: "a", relativeX: 12},
+        {noteId: "ldlvvldzldlvvldz", pad: "a", relativeX: 13},
+        {noteId: "hystbxhystbx", pad: "a", relativeX: 14},
+        {noteId: "cvfwibycvfwiby", pad: "a", relativeX: 15},
+        {noteId: "zdousmzdousm", pad: "a", relativeX: 16},
+        {noteId: "ehpazehpaz", pad: "a", relativeX: 17},
+        {noteId: "hlztinhlztin", pad: "a", relativeX: 18},
+        {noteId: "dpwzfrdpwzfr", pad: "a", relativeX: 19},
+        {noteId: "yqhdfsabyqhdfsab", pad: "a", relativeX: 20},
+        {noteId: "rdnwtkirdnwtki", pad: "a", relativeX: 21},
+        {noteId: "vftslvbnvftslvbn", pad: "a", relativeX: 22},
+        {noteId: "ipvxzxoipvxzxo", pad: "a", relativeX: 23},
+        {noteId: "fusizuefusizue", pad: "a", relativeX: 24},
+        {noteId: "dulnxonzedulnxonze", pad: "a", relativeX: 25},
+        {noteId: "gyoavogyoavo", pad: "a", relativeX: 26},
+        {noteId: "lchsionlchsion", pad: "a", relativeX: 27},
+        {noteId: "pbkywspbkyws", pad: "a", relativeX: 28},
+        {noteId: "ymvvscoymvvsco", pad: "a", relativeX: 29},
+        {noteId: "joxfnjoxfn", pad: "a", relativeX: 30},
+        {noteId: "pyeokfjpyeokfj", pad: "a", relativeX: 31},
+        {noteId: "jbmmagjbmmag", pad: "a", relativeX: 0},
+        {noteId: "mkzvvmkzvv", pad: "a", relativeX: 1},
+        {noteId: "xoyuthshxoyuthsh", pad: "a", relativeX: 2},
+        {noteId: "jwmbejwmbe", pad: "a", relativeX: 3},
+        {noteId: "mxocemxoce", pad: "a", relativeX: 4},
+        {noteId: "tmvzptmvzp", pad: "a", relativeX: 5},
+        {noteId: "tafqnchftafqnchf", pad: "a", relativeX: 6},
+        {noteId: "sxgrmsxgrm", pad: "a", relativeX: 7},
+        {noteId: "uyudlhauyudlha", pad: "a", relativeX: 8},
+        {noteId: "cbbsanhcbbsanh", pad: "a", relativeX: 9},
+        {noteId: "cvnavpxgcvnavpxg", pad: "a", relativeX: 10},
+        {noteId: "vsevmhtvsevmht", pad: "a", relativeX: 11},
+        {noteId: "rdpebvmflrdpebvmfl", pad: "q", relativeX: 1},
+        {noteId: "vuikofvuikof", pad: "q", relativeX: 4},
+        {noteId: "utankgmutankgm", pad: "q", relativeX: 7},
+        {noteId: "aafezueaafezue", pad: "q", relativeX: 11},
+        {noteId: "dgtzpmaadgtzpmaa", pad: "q", relativeX: 12},
+        {noteId: "obkzcqpobkzcqp", pad: "q", relativeX: 15},
+        {noteId: "klkhxrmklkhxrm", pad: "q", relativeX: 19},
+        {noteId: "vsahtvsaht", pad: "q", relativeX: 23},
+        {noteId: "wbmrnchwbmrnch", pad: "q", relativeX: 29},
+      ])
+    }
+  }
+
+  //////////////////////////////create service!!!//////////////////////////////////////////
   /**
    * for getting y position by name of pad
    * @param padName name of pad
    * @returns y position for scales
    */
   getYPositionForPad(padName: string) {
-    let y
-    switch (padName) {
-      case 'q':
-        y = 0
-        break;
-      case 'w':
-        y = this.settings.noteHeight
-        break;
-      case 'e':
-        y = this.settings.noteHeight * 2
-        break;
-      case 'a':
-        y = this.settings.noteHeight * 3
-        break;
-      case 's':
-        y = this.settings.noteHeight * 4
-        break;
-      case 'd':
-        y = this.settings.noteHeight * 5
-        break;
-      case 'z':
-        y = this.settings.noteHeight * 6
-        break;
-      case 'x':
-        y = this.settings.noteHeight * 7
-        break;
-      case 'c':
-        y = this.settings.noteHeight * 8
-        break;
-      default:
-        y = 0
-        break;
-    }
-    return y
+    const values = ['q', 'w', 'e', 'a', 's', 'd', 'z', 'x', 'c']
+    return values.findIndex((v) => v === padName) * this.settings.noteHeight
   }
 
   getPadFromYPosition(y: number) {
@@ -559,14 +486,7 @@ export class ScalesComponent implements OnInit {
     else if (y > (this.settings.noteHeight * 7) && y < (this.settings.noteHeight * 8)) return 'x'
     else return 'c'
   }
-  /**
-   * generate id
-   * @returns unique id
-   */
-  getId() {
-    const random = [...Math.random().toString(36).substr(2, 9)].filter(n => !+n && n !== '0').join('')
-    return random + random
-  }
+
 
   getXPosForMoveingLine(duration: number): number {
     if(this.curentPos.getValue() === 32) this.curentPos.next(0)
@@ -581,5 +501,71 @@ export class ScalesComponent implements OnInit {
 
   getRelativeX(x: number) {
     return (x - this.settings.marginLeftForName) / this.settings.noteWidth
+  }
+
+  sortDataForPlaying(): IPlayData {
+    const data: IPlayData = {
+      q: {
+        src: '',
+        volume: 0,
+        pos: []
+      },
+      w: {
+        src: '',
+        volume: 0,
+        pos: []
+      },
+      e: {
+        src: '',
+        volume: 0,
+        pos: []
+      },
+      a: {
+        src: '',
+        volume: 0,
+        pos: []
+      },
+      s: {
+        src: '',
+        volume: 0,
+        pos: []
+      },
+      d: {
+        src: '',
+        volume: 0,
+        pos: []
+      },
+      z: {
+        src: '',
+        volume: 0,
+        pos: []
+      },
+      x: {
+        src: '',
+        volume: 0,
+        pos: []
+      },
+      c: {
+        src: '',
+        volume: 0,
+        pos: []
+      }
+    }
+    this.notesStorage$.getValue().forEach(d => {
+      const info = this.store.getPadInfo(d.pad)
+      data[d.pad as keyof IPlayData] = {src: info.src, volume: info.volume, pos: []}
+    })
+    this.notesStorage$.getValue().forEach(d => {
+      data[d.pad as keyof IPlayData].pos.push(d.relativeX)
+    })
+    return data
+  }
+
+  /**
+  * @returns unique id
+  */
+  getId() {
+    const random = [...Math.random().toString(36).substr(2, 9)].filter(n => !+n && n !== '0').join('')
+    return random + random
   }
 }

@@ -1,4 +1,5 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
+import { StoreService } from '../../services/store/store.service';
 
 import { FilesComponent } from './files.component';
 
@@ -8,7 +9,10 @@ describe('FilesComponent', () => {
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      declarations: [ FilesComponent ]
+      declarations: [ FilesComponent ],
+      providers: [
+        StoreService,
+      ]
     })
     .compileComponents();
 

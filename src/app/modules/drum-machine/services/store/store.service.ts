@@ -216,6 +216,63 @@ export class StoreService {
     const pads = localStorage.getItem('pads')
     if(pads) {
       this.pads$.next(JSON.parse(pads))
+    } else {
+      this.pads$.next({
+        q: {
+          padName: 'q',
+          src: 'assets/kicks/kick_1.wav',
+          sampleName: 'kick#1',
+          volume: 1
+        },
+        w: {
+          padName: 'w',
+          src: 'assets/snares/snare_3.wav',
+          sampleName: 'snare#3',
+          volume: 1
+        },
+        e: {
+          padName: 'e',
+          src: '',
+          sampleName: '',
+          volume: 0.5
+        },
+        a: {
+          padName: 'a',
+          src: 'assets/hats/hat_1.wav',
+          sampleName: 'hat#1',
+          volume: 1
+        },
+        s: {
+          padName: 's',
+          src: '',
+          sampleName: '',
+          volume: 0.5
+        },
+        d: {
+          padName: 'd',
+          src: '',
+          sampleName: '',
+          volume: 0.5
+        },
+        z: {
+          padName: 'z',
+          src: '',
+          sampleName: '',
+          volume: 0.5
+        },
+        x: {
+          padName: 'x',
+          src: '',
+          sampleName: '',
+          volume: 0.5
+        },
+        c: {
+          padName: 'c',
+          src: '',
+          sampleName: '',
+          volume: 0.5
+        },
+      })
     }
   }
 }
