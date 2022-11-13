@@ -9,6 +9,18 @@ export interface INotesStorage {
   relativeX: number
 }
 
+interface IPlayData {
+  q: {src: string, volume: number, pos: number[]};
+  w: {src: string, volume: number, pos: number[]};
+  e: {src: string, volume: number, pos: number[]};
+  a: {src: string, volume: number, pos: number[]};
+  s: {src: string, volume: number, pos: number[]};
+  d: {src: string, volume: number, pos: number[]};
+  z: {src: string, volume: number, pos: number[]};
+  x: {src: string, volume: number, pos: number[]};
+  c: {src: string, volume: number, pos: number[]};
+}
+
 @Component({
   selector: 'app-scales',
   templateUrl: './scales.component.html',
@@ -23,13 +35,13 @@ export class ScalesComponent implements OnInit {
     marginLeftForName: 100,
     // 4 bars and margin-left
     barWidth: (innerWidth * 0.89 - 100) / 4,
-    noteHeight: innerHeight * 0.43 / 8,
+    noteHeight: innerHeight * 0.43 / 9,
     noteWidth: (innerWidth * 0.89 - 100) / 32
   }
 
   pads$: Observable<IPad[]> = this.store.padsArr$
 
-  bpm = 90
+  bpm = 95
 
   metronomeIsOn: boolean = false
 
@@ -92,14 +104,12 @@ export class ScalesComponent implements OnInit {
         const y = d.offsetY
         const pad = this.getPadFromYPosition(y)
         //xRelative is x position in numbers of notes width from left edge
-        const relativeX = this.getRelativeX(d.offsetX )
+        const relativeX = this.getRelativeX(d.offsetX)
         this.addNote(this.getId(), pad, relativeX)
       }
     })
   }
-  getRelativeX(x: number) {
-    return (x - this.settings.marginLeftForName) / this.settings.noteWidth
-  }
+
   /**
    * render g containers for lines (render before renderLines() func)
    */
@@ -150,16 +160,71 @@ export class ScalesComponent implements OnInit {
    * starp playing notes and render time line
    */
   start() {
-    this.playSamples()
+    const data: IPlayData = {
+      q: {
+        src: '',
+        volume: 0,
+        pos: []
+      },
+      w: {
+        src: '',
+        volume: 0,
+        pos: []
+      },
+      e: {
+        src: '',
+        volume: 0,
+        pos: []
+      },
+      a: {
+        src: '',
+        volume: 0,
+        pos: []
+      },
+      s: {
+        src: '',
+        volume: 0,
+        pos: []
+      },
+      d: {
+        src: '',
+        volume: 0,
+        pos: []
+      },
+      z: {
+        src: '',
+        volume: 0,
+        pos: []
+      },
+      x: {
+        src: '',
+        volume: 0,
+        pos: []
+      },
+      c: {
+        src: '',
+        volume: 0,
+        pos: []
+      }
+    }
+    this.notesStorage$.getValue().forEach(d => {
+      const info = this.store.getPadInfo(d.pad)
+      data[d.pad as keyof IPlayData] = {src: info.src, volume: info.volume, pos: []}
+    })
+    this.notesStorage$.getValue().forEach(d => {
+      data[d.pad as keyof IPlayData].pos.push(d.relativeX)
+    })
+    this.playSamples(data)
+
     const timeForOneBar = 60000 / this.bpm
     if(this.metronomeIsOn) this.playMetronome(timeForOneBar)
     
     this.renderMovingLineStatic(this.getXPosForMoveingLine(0))
-    interval(timeForOneBar / 32).pipe(
+    interval(timeForOneBar / 2).pipe(
       startWith(-1),
       takeUntil(this.stopHandler$)
     ).subscribe(() => {
-      this.currentXPos$.next(this.getXPosForMoveingLine(timeForOneBar / 32))
+      this.currentXPos$.next(this.getXPosForMoveingLine(timeForOneBar))
       this.renderMovingLineStatic(this.currentXPos$.getValue())
     })
   }
@@ -171,9 +236,73 @@ export class ScalesComponent implements OnInit {
       this.store.selectSamplePlay(src)
     })
   }
+  //only this way function work!!!
+  playSamples(data: IPlayData) {
+    const timeBar = 60000 / this.bpm / 2
 
-  playSamples() {
-    
+    //q
+    interval(timeBar).pipe(takeUntil(this.stopHandler$), startWith(-1)).subscribe(i => {
+      const pos = this.curentPos.getValue() !== 32 ? this.curentPos.getValue() : 0
+      if(data.q.pos.includes(pos)) {
+        this.store.playSample(data.q.src, data.q.volume)
+      }
+    })
+    //w
+    interval(timeBar).pipe(takeUntil(this.stopHandler$), startWith(-1)).subscribe(i => {
+      const pos = this.curentPos.getValue() !== 32 ? this.curentPos.getValue() : 0
+      if(data.w.pos.includes(pos)) {
+        this.store.playSample(data.w.src, data.w.volume)
+      }
+    })
+    //e
+    interval(timeBar).pipe(takeUntil(this.stopHandler$), startWith(-1)).subscribe(i => {
+      const pos = this.curentPos.getValue() !== 32 ? this.curentPos.getValue() : 0
+      if(data.e.pos.includes(pos)) {
+        this.store.playSample(data.e.src, data.e.volume)
+      }
+    })
+    //a
+    interval(timeBar).pipe(takeUntil(this.stopHandler$), startWith(-1)).subscribe(i => {
+      const pos = this.curentPos.getValue() !== 32 ? this.curentPos.getValue() : 0
+      if(data.a.pos.includes(pos)) {
+        this.store.playSample(data.a.src, data.a.volume)
+      }
+    })
+    //s
+    interval(timeBar).pipe(takeUntil(this.stopHandler$), startWith(-1)).subscribe(i => {
+      const pos = this.curentPos.getValue() !== 32 ? this.curentPos.getValue() : 0
+      if(data.s.pos.includes(pos)) {
+        this.store.playSample(data.s.src, data.s.volume)
+      }
+    })
+    //d
+    interval(timeBar).pipe(takeUntil(this.stopHandler$), startWith(-1)).subscribe(i => {
+      const pos = this.curentPos.getValue() !== 32 ? this.curentPos.getValue() : 0
+      if(data.d.pos.includes(pos)) {
+        this.store.playSample(data.d.src, data.d.volume)
+      }
+    })
+    //z
+    interval(timeBar).pipe(takeUntil(this.stopHandler$), startWith(-1)).subscribe(i => {
+      const pos = this.curentPos.getValue() !== 32 ? this.curentPos.getValue() : 0
+      if(data.z.pos.includes(pos)) {
+        this.store.playSample(data.z.src, data.z.volume)
+      }
+    })
+    //x
+    interval(timeBar).pipe(takeUntil(this.stopHandler$), startWith(-1)).subscribe(i => {
+      const pos = this.curentPos.getValue() !== 32 ? this.curentPos.getValue() : 0
+      if(data.x.pos.includes(pos)) {
+        this.store.playSample(data.x.src, data.x.volume)
+      }
+    })
+    //c
+    interval(timeBar).pipe(takeUntil(this.stopHandler$), startWith(-1)).subscribe(i => {
+      const pos = this.curentPos.getValue() !== 32 ? this.curentPos.getValue() : 0
+      if(data.c.pos.includes(pos)) {
+        this.store.playSample(data.c.src, data.c.volume)
+      }
+    })
   }
 
   record() {
@@ -182,6 +311,7 @@ export class ScalesComponent implements OnInit {
     setTimeout(() => {
       if(this.metronomeIsOn) this.playMetronome(timeForOneBar)
       this.start()
+
       fromEvent(window, 'keydown').pipe(takeUntil(this.stopHandler$)).subscribe((e) => {
         let event: any = e
         let pads: IPad[] = []
@@ -190,10 +320,11 @@ export class ScalesComponent implements OnInit {
           const padInfo = this.store.getPadInfo(pad.padName)
           //if src not empty and you press right key 
           if(event.key === pad.padName && padInfo.src) {
-            this.addNote(this.getId(), padInfo.padName,this.getRelativeX(this.currentXPos$.getValue()))
+            this.addNote(this.getId(), padInfo.padName, this.curentPos.getValue() - 1)
           }
         })
       })
+
     }, timeForOneBar * 3)
   }
 
@@ -231,7 +362,7 @@ export class ScalesComponent implements OnInit {
     .attr('y1', 0)
     .attr('y2', this.settings.height)
     .attr('stroke', 'rgb(125, 32, 125)')
-    .attr('stroke-width', 2)
+    .attr('stroke-width', 4)
   }
 
   renderNotes() {
@@ -254,7 +385,7 @@ export class ScalesComponent implements OnInit {
       .attr('y1', 0)
       .attr('y2', this.settings.height)
 
-    const dataLines1 = [this.settings.height / 8 * 1, this.settings.height / 8 * 2, this.settings.height / 8 * 3, this.settings.height / 8 * 4, this.settings.height / 8 * 5, this.settings.height / 8 * 6, this.settings.height / 8 * 7, this.settings.height]
+    const dataLines1 = [this.settings.noteHeight, this.settings.noteHeight * 2, this.settings.noteHeight * 3, this.settings.noteHeight * 4, this.settings.noteHeight * 5, this.settings.noteHeight * 6, this.settings.noteHeight * 7, this.settings.noteHeight * 8]
     d3.selectAll('g.hrPads')
       .selectAll('line.hrPads')
       .data(dataLines1)
@@ -298,8 +429,9 @@ export class ScalesComponent implements OnInit {
       if(notes) this.notesStorage$.next(notes)
     }
   }
-
+  //add and render notes 
   addNote(noteId: string, pad: string, relativeX: number) {
+    relativeX = Math.floor(relativeX)
     const x = relativeX * this.settings.noteWidth + this.settings.marginLeftForName
     //if notesStorage is empty add new notes
     if(!this.notesStorage$.getValue().length) {
@@ -333,11 +465,12 @@ export class ScalesComponent implements OnInit {
       .call(d3.drag<any, any>()
       .on("drag", (event: any, d: any) => {
         if(event.x > this.settings.marginLeftForName && event.x + this.settings.noteWidth < this.settings.width) {
-          d3.selectAll("rect." + noteId).raise().attr("x", (d.x = event.x))
+          const floorXPos = Math.floor((event.x - this.settings.marginLeftForName) / this.settings.noteWidth) * this.settings.noteWidth + this.settings.marginLeftForName
+          d3.selectAll("rect." + noteId).raise().attr("x", (d.x = floorXPos))
           //updateLocalStorage
           const newData = this.notesStorage$.getValue().map(note => {
             if(note.noteId === noteId)  {
-              return {...note, relativeX: (d.x - this.settings.marginLeftForName) / this.settings.noteWidth}
+              return {...note, relativeX: Math.floor((event.x - this.settings.marginLeftForName) / this.settings.noteWidth)}
             }
             return note
           })
@@ -416,13 +549,17 @@ export class ScalesComponent implements OnInit {
   }
 
   getXPosForMoveingLine(duration: number): number {
-    if(this.curentPos.getValue() === 508) this.curentPos.next(0)
+    if(this.curentPos.getValue() === 32) this.curentPos.next(0)
     if(!duration) {
       return this.settings.marginLeftForName
     } else {
       const pos = this.curentPos.getValue()
       this.curentPos.next(this.curentPos.getValue() + 1)
-      return (this.curentPos.getValue() - 1) * this.settings.noteWidth * 0.0625 + this.settings.marginLeftForName
+      return (this.curentPos.getValue() - 1) * this.settings.noteWidth * 1 + this.settings.marginLeftForName
     }
+  }
+
+  getRelativeX(x: number) {
+    return (x - this.settings.marginLeftForName) / this.settings.noteWidth
   }
 }

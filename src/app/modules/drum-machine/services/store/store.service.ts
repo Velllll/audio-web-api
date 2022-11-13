@@ -140,7 +140,7 @@ export class StoreService {
     private snackBar: MatSnackBar
   ) { }
 
-  playSample(src: string, volume: number, padName: string) {
+  playSample(src: string, volume: number) {
     const audio = new Audio(src)
     audio.volume = volume
     audio.play()

@@ -31,7 +31,7 @@ export class PadsComponent implements OnInit {
         const padInfo = this.store.getPadInfo(pad.padName)
         //if src not empty and you press right key 
         if(event.key === pad.padName && padInfo.src) {
-          this.store.playSample(padInfo.src, padInfo.volume, padInfo.padName)
+          this.store.playSample(padInfo.src, padInfo.volume)
         }
       })
     })
@@ -49,7 +49,7 @@ export class PadsComponent implements OnInit {
     const volume = padInfo.volume
     this.volumeForm.patchValue({volume})
     //if src not empty
-    if(padInfo.src && volume) this.store.playSample(padInfo.src, volume, padInfo.padName)
+    if(padInfo.src && volume) this.store.playSample(padInfo.src, volume)
   }
 
   getVolume() {
