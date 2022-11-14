@@ -1,6 +1,8 @@
 import { Component, OnInit } from '@angular/core';
 import * as d3 from 'd3'
 import { BehaviorSubject, fromEvent, interval, Observable, startWith, Subject, take, takeUntil } from 'rxjs';
+import { defaultNotes } from '../../services/default-presets';
+import { ScalesUtilsService } from '../../services/scales-utils/scales-utils.service';
 import { IPad, StoreService } from '../../services/store/store.service';
 
 export interface INotesStorage {
@@ -9,7 +11,7 @@ export interface INotesStorage {
   relativeX: number
 }
 
-interface IPlayData {
+export interface IPlayData {
   q: {src: string, volume: number, pos: number[]};
   w: {src: string, volume: number, pos: number[]};
   e: {src: string, volume: number, pos: number[]};
@@ -21,6 +23,15 @@ interface IPlayData {
   c: {src: string, volume: number, pos: number[]};
 }
 
+export interface ISettings {
+  height: number;
+  width: number;
+  marginLeftForName: number;
+  barWidth: number;
+  noteHeight: number;
+  noteWidth: number;
+}
+
 @Component({
   selector: 'app-scales',
   templateUrl: './scales.component.html',
@@ -29,7 +40,7 @@ interface IPlayData {
 export class ScalesComponent implements OnInit {
   svg!: d3.Selection<d3.BaseType, unknown, HTMLElement, any>
 
-  settings = {
+  settings: ISettings = {
     height: innerHeight * 0.43,
     width: innerWidth * 0.89,
     marginLeftForName: 100,
@@ -56,7 +67,8 @@ export class ScalesComponent implements OnInit {
   notesStorage$ = new BehaviorSubject<INotesStorage[]>([])
 
   constructor(
-    private store: StoreService
+    private store: StoreService,
+    private scalesUtils: ScalesUtilsService
   ) { }
 
   ngOnInit(): void {
@@ -104,10 +116,10 @@ export class ScalesComponent implements OnInit {
       //if clicked on margine zone woudn't add new note
       if(d.offsetX >= this.settings.marginLeftForName) {
         const y = d.offsetY
-        const pad = this.getPadFromYPosition(y)
+        const pad = this.scalesUtils.getPadFromYPosition(y, this.settings)
         //xRelative is x position in numbers of notes width from left edge
-        const relativeX = this.getRelativeX(d.offsetX)
-        this.renderAndAddNote(this.getId(), pad, relativeX)
+        const relativeX = this.scalesUtils.getRelativeX(d.offsetX, this.settings)
+        this.renderAndAddNote(this.scalesUtils.getId(), pad, relativeX)
       }
     })
   }
@@ -186,7 +198,7 @@ export class ScalesComponent implements OnInit {
       startWith(-1),
       takeUntil(this.stopHandler$)
     ).subscribe(() => {
-      this.currentXPos$.next(this.getXPosForMoveingLine(timeForOneBar))
+      this.currentXPos$.next(this.scalesUtils.getXPosForMoveingLine(timeForOneBar, this.settings, this.curentPos))
     })
     interval(60000 / this.bpm * 16).pipe(takeUntil(this.stopHandler$), startWith(0)).subscribe(() => {
       this.renderMovingLineStatic([this.settings.marginLeftForName])
@@ -266,7 +278,7 @@ export class ScalesComponent implements OnInit {
       }
     }
 
-    let y: number = this.getYPositionForPad(pad)
+    let y: number = this.scalesUtils.getYPositionForPad(pad, this.settings)
 
     const strokeWidth = 1
     
@@ -311,7 +323,7 @@ export class ScalesComponent implements OnInit {
   start() {
     this.disablePlayButton.next(true)
 
-    const data = this.sortDataForPlaying()
+    const data = this.scalesUtils.sortDataForPlaying(this.notesStorage$)
     this.playSamples(data)
 
     const timeForOneBar = 60000 / this.bpm
@@ -339,7 +351,7 @@ export class ScalesComponent implements OnInit {
     this.disablePlayButton.next(false)
     this.stopHandler$.next(true)
     this.curentPos.next(0)
-    this.renderMovingLineStatic([this.getXPosForMoveingLine(0)])
+    this.renderMovingLineStatic([this.scalesUtils.getXPosForMoveingLine(0, this.settings, this.curentPos)])
   }
 
   clear() {
@@ -371,7 +383,7 @@ export class ScalesComponent implements OnInit {
           const padInfo = this.store.getPadInfo(pad.padName)
           //if src not empty and you press right key 
           if(event.key === pad.padName && padInfo.src) {
-            this.renderAndAddNote(this.getId(), padInfo.padName, this.curentPos.getValue() - 1)
+            this.renderAndAddNote(this.scalesUtils.getId(), padInfo.padName, this.curentPos.getValue() - 1)
           }
         })
       })
@@ -410,162 +422,7 @@ export class ScalesComponent implements OnInit {
       if(notes) this.notesStorage$.next(notes)
     } else {
       //default notes for scales
-      this.notesStorage$.next([
-        {noteId: "aygsncaygsnc", pad: "w", relativeX: 2},
-        {noteId: "tgqgilkttgqgilkt", pad: "w", relativeX: 6},
-        {noteId: "pphwqpphwq", pad: "w", relativeX: 10},
-        {noteId: "asjjoqvasjjoqv", pad: "w", relativeX: 14},
-        {noteId: "hitllglqxhitllglqx", pad: "w", relativeX: 18},
-        {noteId: "jerjjerj", pad: "w", relativeX: 22},
-        {noteId: "qakmighaqakmigha", pad: "w", relativeX: 26},
-        {noteId: "aclartkbgaclartkbg", pad: "w", relativeX: 30},
-        {noteId: "sggsjzmsggsjzm", pad: "a", relativeX: 12},
-        {noteId: "ldlvvldzldlvvldz", pad: "a", relativeX: 13},
-        {noteId: "hystbxhystbx", pad: "a", relativeX: 14},
-        {noteId: "cvfwibycvfwiby", pad: "a", relativeX: 15},
-        {noteId: "zdousmzdousm", pad: "a", relativeX: 16},
-        {noteId: "ehpazehpaz", pad: "a", relativeX: 17},
-        {noteId: "hlztinhlztin", pad: "a", relativeX: 18},
-        {noteId: "dpwzfrdpwzfr", pad: "a", relativeX: 19},
-        {noteId: "yqhdfsabyqhdfsab", pad: "a", relativeX: 20},
-        {noteId: "rdnwtkirdnwtki", pad: "a", relativeX: 21},
-        {noteId: "vftslvbnvftslvbn", pad: "a", relativeX: 22},
-        {noteId: "ipvxzxoipvxzxo", pad: "a", relativeX: 23},
-        {noteId: "fusizuefusizue", pad: "a", relativeX: 24},
-        {noteId: "dulnxonzedulnxonze", pad: "a", relativeX: 25},
-        {noteId: "gyoavogyoavo", pad: "a", relativeX: 26},
-        {noteId: "lchsionlchsion", pad: "a", relativeX: 27},
-        {noteId: "pbkywspbkyws", pad: "a", relativeX: 28},
-        {noteId: "ymvvscoymvvsco", pad: "a", relativeX: 29},
-        {noteId: "joxfnjoxfn", pad: "a", relativeX: 30},
-        {noteId: "pyeokfjpyeokfj", pad: "a", relativeX: 31},
-        {noteId: "jbmmagjbmmag", pad: "a", relativeX: 0},
-        {noteId: "mkzvvmkzvv", pad: "a", relativeX: 1},
-        {noteId: "xoyuthshxoyuthsh", pad: "a", relativeX: 2},
-        {noteId: "jwmbejwmbe", pad: "a", relativeX: 3},
-        {noteId: "mxocemxoce", pad: "a", relativeX: 4},
-        {noteId: "tmvzptmvzp", pad: "a", relativeX: 5},
-        {noteId: "tafqnchftafqnchf", pad: "a", relativeX: 6},
-        {noteId: "sxgrmsxgrm", pad: "a", relativeX: 7},
-        {noteId: "uyudlhauyudlha", pad: "a", relativeX: 8},
-        {noteId: "cbbsanhcbbsanh", pad: "a", relativeX: 9},
-        {noteId: "cvnavpxgcvnavpxg", pad: "a", relativeX: 10},
-        {noteId: "vsevmhtvsevmht", pad: "a", relativeX: 11},
-        {noteId: "rdpebvmflrdpebvmfl", pad: "q", relativeX: 1},
-        {noteId: "vuikofvuikof", pad: "q", relativeX: 4},
-        {noteId: "utankgmutankgm", pad: "q", relativeX: 7},
-        {noteId: "aafezueaafezue", pad: "q", relativeX: 11},
-        {noteId: "dgtzpmaadgtzpmaa", pad: "q", relativeX: 12},
-        {noteId: "obkzcqpobkzcqp", pad: "q", relativeX: 15},
-        {noteId: "klkhxrmklkhxrm", pad: "q", relativeX: 19},
-        {noteId: "vsahtvsaht", pad: "q", relativeX: 23},
-        {noteId: "wbmrnchwbmrnch", pad: "q", relativeX: 29},
-      ])
+      this.notesStorage$.next(defaultNotes)
     }
-  }
-
-  //////////////////////////////create service!!!//////////////////////////////////////////
-  /**
-   * for getting y position by name of pad
-   * @param padName name of pad
-   * @returns y position for scales
-   */
-  getYPositionForPad(padName: string) {
-    const values = ['q', 'w', 'e', 'a', 's', 'd', 'z', 'x', 'c']
-    return values.findIndex((v) => v === padName) * this.settings.noteHeight
-  }
-
-  getPadFromYPosition(y: number) {
-    if(y > 0 && y < this.settings.noteHeight) return 'q'
-    else if (y > this.settings.noteHeight && y < (this.settings.noteHeight * 2)) return 'w'
-    else if (y > (this.settings.noteHeight * 2) && y < (this.settings.noteHeight * 3)) return 'e'
-    else if (y > (this.settings.noteHeight * 3) && y < (this.settings.noteHeight * 4)) return 'a'
-    else if (y > (this.settings.noteHeight * 4) && y < (this.settings.noteHeight * 5)) return 's'
-    else if (y > (this.settings.noteHeight * 5) && y < (this.settings.noteHeight * 6)) return 'd'
-    else if (y > (this.settings.noteHeight * 6) && y < (this.settings.noteHeight * 7)) return 'z'
-    else if (y > (this.settings.noteHeight * 7) && y < (this.settings.noteHeight * 8)) return 'x'
-    else return 'c'
-  }
-
-
-  getXPosForMoveingLine(duration: number): number {
-    if(this.curentPos.getValue() === 32) this.curentPos.next(0)
-    if(!duration) {
-      return this.settings.marginLeftForName
-    } else {
-      const pos = this.curentPos.getValue()
-      this.curentPos.next(this.curentPos.getValue() + 1)
-      return (this.curentPos.getValue() - 1) * this.settings.noteWidth * 1 + this.settings.marginLeftForName
-    }
-  }
-
-  getRelativeX(x: number) {
-    return (x - this.settings.marginLeftForName) / this.settings.noteWidth
-  }
-
-  sortDataForPlaying(): IPlayData {
-    const data: IPlayData = {
-      q: {
-        src: '',
-        volume: 0,
-        pos: []
-      },
-      w: {
-        src: '',
-        volume: 0,
-        pos: []
-      },
-      e: {
-        src: '',
-        volume: 0,
-        pos: []
-      },
-      a: {
-        src: '',
-        volume: 0,
-        pos: []
-      },
-      s: {
-        src: '',
-        volume: 0,
-        pos: []
-      },
-      d: {
-        src: '',
-        volume: 0,
-        pos: []
-      },
-      z: {
-        src: '',
-        volume: 0,
-        pos: []
-      },
-      x: {
-        src: '',
-        volume: 0,
-        pos: []
-      },
-      c: {
-        src: '',
-        volume: 0,
-        pos: []
-      }
-    }
-    this.notesStorage$.getValue().forEach(d => {
-      const info = this.store.getPadInfo(d.pad)
-      data[d.pad as keyof IPlayData] = {src: info.src, volume: info.volume, pos: []}
-    })
-    this.notesStorage$.getValue().forEach(d => {
-      data[d.pad as keyof IPlayData].pos.push(d.relativeX)
-    })
-    return data
-  }
-
-  /**
-  * @returns unique id
-  */
-  getId() {
-    const random = [...Math.random().toString(36).substr(2, 9)].filter(n => !+n && n !== '0').join('')
-    return random + random
   }
 }

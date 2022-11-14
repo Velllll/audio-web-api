@@ -16,6 +16,12 @@
             <div class="name sample-name">
                 Sample: {{currentPad.sampleName ? currentPad.sampleName : 'Pad is empty'}}
             </div>
+
+            <div class="clear">
+                <button (click)="clear()">
+                    <mat-icon >delete_forever</mat-icon>
+                </button>
+            </div>
         </div>
     </div>
     <div class="pads-container" *ngIf="pads$ | async as pads">

@@ -14,6 +14,7 @@ import {MatMenuModule} from '@angular/material/menu';
 import { ReactiveFormsModule } from '@angular/forms';
 import { SnackBarWarningComponent } from './components/files/snack-bar-warning/snack-bar-warning.component';
 import {MatSnackBarModule} from '@angular/material/snack-bar';
+import { ScalesUtilsService } from './services/scales-utils/scales-utils.service';
 
 @NgModule({
   declarations: [
@@ -36,6 +37,7 @@ import {MatSnackBarModule} from '@angular/material/snack-bar';
   ],
   providers: [
     StoreService,
+    ScalesUtilsService
   ]
 })
 export class DrumMachineModule { }

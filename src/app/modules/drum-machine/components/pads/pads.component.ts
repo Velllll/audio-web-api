@@ -69,4 +69,8 @@ export class PadsComponent implements OnInit {
   getSampleName(name: string) {
     return name ? name.slice(0, 10) + (name.slice(10, 11) ? '...' : '') : 'empty'
   }
+
+  clear() {
+    this.store.clearPads()
+  }
 }
