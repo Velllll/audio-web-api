@@ -15,6 +15,7 @@ import { ReactiveFormsModule } from '@angular/forms';
 import { SnackBarWarningComponent } from './components/files/snack-bar-warning/snack-bar-warning.component';
 import {MatSnackBarModule} from '@angular/material/snack-bar';
 import { ScalesUtilsService } from './services/scales-utils/scales-utils.service';
+import { TutorialComponent } from './tutorial/tutorial.component';
 
 @NgModule({
   declarations: [
@@ -22,7 +23,8 @@ import { ScalesUtilsService } from './services/scales-utils/scales-utils.service
     FilesComponent,
     PadsComponent,
     ScalesComponent,
-    SnackBarWarningComponent
+    SnackBarWarningComponent,
+    TutorialComponent
   ],
   imports: [
     CommonModule,

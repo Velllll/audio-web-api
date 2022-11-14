@@ -70,7 +70,7 @@
 
             .clear {
                 position: absolute;
-                right: 10px;
+                left: 10px;
                 top: 10px;
                 button {
                     display: flex;
@@ -104,11 +104,6 @@
 
             @media (max-height: 730px) {
                 height: 6vh;
-            }
-
-            &:hover {
-                box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.5);
-                transition-duration: 200ms;
             }
 
             .pad {

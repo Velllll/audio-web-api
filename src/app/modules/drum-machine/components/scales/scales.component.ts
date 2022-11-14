@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, Input, OnInit } from '@angular/core';
 import * as d3 from 'd3'
 import { BehaviorSubject, fromEvent, interval, Observable, startWith, Subject, take, takeUntil } from 'rxjs';
 import { defaultNotes } from '../../services/default-presets';
@@ -38,6 +38,9 @@ export interface ISettings {
   styleUrls: ['./scales.component.scss'],
 })
 export class ScalesComponent implements OnInit {
+
+  @Input('isTutorial') isTutorial: boolean = false
+
   svg!: d3.Selection<d3.BaseType, unknown, HTMLElement, any>
 
   settings: ISettings = {

@@ -1,0 +1,23 @@
+.container-home {
+    width: 100vw;
+    height: 100vh;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    text-align: center;
+
+    .drum {
+        a {
+            font-size: 70px;
+            line-height: 90px;
+            color: rgb(125, 32, 125);
+        }
+    }
+
+    a {
+        font-size: 50px;
+        margin: 70px 0 ;
+        display: block;
+        color: rgba(125, 32, 125, 0.825);
+    }
+}

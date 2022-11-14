@@ -1,7 +1,17 @@
 <ng-container *ngIf="screen$ | async as screen">
     <div class="container" *ngIf="screen.width >= 667 && screen.height >= 375; else warning">
-        <div class="row-container">
-            <div class="file-cntainer">
+        <div class="steps-info">
+            <div [class]="{'step': true, 'back': true, 'hidden': (steps$ | async) == 0}"  (click)="backStep()">back</div>
+            <div class="step-title">
+                {{getStepName()}}
+            </div>
+            <div class="step next" *ngIf="(steps$ | async) !== 2; else goToDrum" (click)="nextStep()">next</div>
+            <ng-template #goToDrum>
+                <div class="step" routerLink="/drum-machine">try it</div>
+            </ng-template>
+        </div>
+        <div class="components">
+            <div class="files" *ngIf="(steps$ | async) === 0">
                 <app-files></app-files>
                 <div class="background-container">
                     <svg>
@@ -23,8 +33,9 @@
                     </svg>
                 </div>
             </div>
-            <div class="pads-container">
-                <app-pads></app-pads>
+            <div class="pads" *ngIf="(steps$ | async) === 1">
+                <app-pads ></app-pads>
+    
                 <div class="background-container">
                     <svg>
                         <line x1="0" y1="99%" x2="1%" y2="0%" stroke="black" />
@@ -45,13 +56,56 @@
                     </svg>
                 </div>
             </div>
+            <div class="scales" *ngIf="(steps$ | async) === 2">
+                <app-scales  [isTutorial]="true"></app-scales>
+            </div>
         </div>
-        <app-scales></app-scales>
+
+        <div class="info" *ngIf="(steps$ | async) === 0">
+            <p>
+                On file panel you can select samples and appoint it on pads. 
+            </p>
+            <p>
+                Click on drum. Choose sample and press <mat-icon>filter_list</mat-icon>
+            </p>
+        </div>
+        <div class="info" *ngIf="(steps$ | async) === 1">
+            <p>
+                On pads panel you can play samples that you appoint step before. 
+            </p>
+            <p>
+                If you press on pad you can change volume of it.
+            </p>
+            <p>
+                Press <mat-icon>delete_forever</mat-icon> to clear pads.
+            </p>
+            <p>
+                Use your keyboard to play samples from pads. All keys write in right corner.
+            </p>
+        </div>
+        <div class="info" *ngIf="(steps$ | async) === 2">
+            <p>
+                On scales panel you can add notes with double click, and delete them.
+            </p>
+            <p>
+                You can grab note and move it.
+            </p>
+            <p>
+                <mat-icon >play_arrow</mat-icon> - Play  <mat-icon>stop_circle</mat-icon> - Stop playing or recording and <mat-icon>fiber_manual_record</mat-icon> - Record
+            </p>
+            <p>
+                Change BPM using arrows up and down
+            </p>
+            <p>
+                For recording press <mat-icon>fiber_manual_record</mat-icon> and use your keyboard to play samples.
+            </p>
+        </div>
         <div class="go-to-home">
             <span routerLink="/"><mat-icon>home</mat-icon></span>
         </div>
     </div>
 </ng-container>
+
 
 <ng-template #warning>
     <div class="container-warning">

@@ -25,7 +25,7 @@
                 <mat-icon >delete_forever</mat-icon>
             </button>
             <button (click)="saveStorage()" [disabled]="disablePlayButton | async">
-                <mat-icon>save</mat-icon>
+                <mat-icon *ngIf="!isTutorial">save</mat-icon>
             </button>
         </div>
         
