@@ -34,7 +34,6 @@ export class PadsComponent implements OnInit, OnDestroy {
   }
 
   ngOnInit(): void {
-    
     combineLatest([fromEvent(window, 'keydown')]).pipe(takeUntil(this.destroy$)).subscribe(([e]) => {
       let event: any = e
       let pads: IPad[] = []
@@ -61,7 +60,7 @@ export class PadsComponent implements OnInit, OnDestroy {
     const volume = padInfo.volume
     this.volumeForm.patchValue({volume})
     //if src not empty
-    if(padInfo.src && volume) this.store.playSample(padInfo.src, volume)
+    if(padInfo.src && volume) this.store.playSample(padInfo.src, volume, padInfo.padName)
   }
 
   getVolume() {

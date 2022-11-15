@@ -75,9 +75,10 @@ export class ScalesComponent implements OnInit, OnDestroy {
     private store: StoreService,
     private scalesUtils: ScalesUtilsService
   ) { }
-  
+
   ngOnDestroy(): void {
     this.destroy$.next(true)
+    this.stopHandler$.next(true)
   }
 
   ngOnInit(): void {
@@ -384,6 +385,7 @@ export class ScalesComponent implements OnInit, OnDestroy {
     setTimeout(() => {
       if(this.metronomeIsOn) this.playMetronome(timeForOneBar)
       this.start()
+      //record key from keybord
       fromEvent(window, 'keydown').pipe(takeUntil(this.stopHandler$)).subscribe((e) => {
         let event: any = e
         let pads: IPad[] = []
@@ -396,7 +398,10 @@ export class ScalesComponent implements OnInit, OnDestroy {
           }
         })
       })
-
+      //record from pads
+      this.store.lastPleyedSampleFromPads.pipe(takeUntil(this.stopHandler$)).subscribe(padName => {
+        if(padName) this.renderAndAddNote(this.scalesUtils.getId(), padName, this.curentPos.getValue() - 1)
+      })
     }, timeForOneBar * 3)
   }
 

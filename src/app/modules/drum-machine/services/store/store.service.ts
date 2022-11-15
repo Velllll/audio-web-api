@@ -152,13 +152,18 @@ export class StoreService {
     )
   }
 
+  lastPleyedSampleFromPads = new BehaviorSubject('')
+
   constructor(
     private snackBar: MatSnackBar
   ) { 
     this.loadPadsFromStorage()
   }
 
-  playSample(src: string, volume: number) {
+  playSample(src: string, volume: number, padName?: string) {
+    if(padName) {
+      this.lastPleyedSampleFromPads.next(padName)
+    }
     const audio = new Audio(src)
     audio.volume = volume
     audio.play()
