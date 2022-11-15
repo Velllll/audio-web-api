@@ -24,7 +24,10 @@ import { TutorialComponent } from './tutorial/tutorial.component';
     PadsComponent,
     ScalesComponent,
     SnackBarWarningComponent,
-    TutorialComponent
+    TutorialComponent,
+    FilesComponent,
+    PadsComponent,
+    ScalesComponent,
   ],
   imports: [
     CommonModule,
@@ -35,7 +38,6 @@ import { TutorialComponent } from './tutorial/tutorial.component';
     MatMenuModule,
     ReactiveFormsModule,
     MatSnackBarModule,
-    
   ],
   providers: [
     StoreService,

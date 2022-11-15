@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, Input, OnInit } from '@angular/core';
 import { fromEvent, Observable } from 'rxjs';
 import { StoreService } from '../../services/store/store.service';
 
@@ -8,6 +8,8 @@ import { StoreService } from '../../services/store/store.service';
   styleUrls: ['./files.component.scss']
 })
 export class FilesComponent implements OnInit {
+
+  @Input('isTutorial') tutorial?: boolean
 
   folders = this.store.folder$.getValue()
   
@@ -24,7 +26,7 @@ export class FilesComponent implements OnInit {
   }
 
   appointToPad(sapmlesSrc: string, pad: string, sampleName: string) {
-    this.store.appointPad(sapmlesSrc, pad, sampleName)
+    if(!this.tutorial) this.store.appointPad(sapmlesSrc, pad, sampleName)
   }
 
 }

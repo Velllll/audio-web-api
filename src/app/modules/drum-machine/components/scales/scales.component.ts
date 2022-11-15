@@ -1,4 +1,4 @@
-import { Component, Input, OnInit } from '@angular/core';
+import { Component, Input, OnDestroy, OnInit } from '@angular/core';
 import * as d3 from 'd3'
 import { BehaviorSubject, fromEvent, interval, Observable, startWith, Subject, take, takeUntil } from 'rxjs';
 import { defaultNotes } from '../../services/default-presets';
@@ -37,7 +37,7 @@ export interface ISettings {
   templateUrl: './scales.component.html',
   styleUrls: ['./scales.component.scss'],
 })
-export class ScalesComponent implements OnInit {
+export class ScalesComponent implements OnInit, OnDestroy {
 
   @Input('isTutorial') isTutorial: boolean = false
 
@@ -69,10 +69,16 @@ export class ScalesComponent implements OnInit {
 
   notesStorage$ = new BehaviorSubject<INotesStorage[]>([])
 
+  destroy$ = new Subject()
+
   constructor(
     private store: StoreService,
     private scalesUtils: ScalesUtilsService
   ) { }
+  
+  ngOnDestroy(): void {
+    this.destroy$.next(true)
+  }
 
   ngOnInit(): void {
     //appoint width and height to svg element
@@ -90,7 +96,7 @@ export class ScalesComponent implements OnInit {
     //render time line on start position
     this.renderMovingLineStatic([this.settings.marginLeftForName])
 
-    fromEvent(window, 'resize').subscribe(() => {
+    fromEvent(window, 'resize').pipe(takeUntil(this.destroy$)).subscribe(() => {
       this.settings.height = innerHeight * 0.43
       this.settings.width = innerWidth * 0.89
       this.settings.barWidth = (innerWidth * 0.89 - this.settings.marginLeftForName) / 4

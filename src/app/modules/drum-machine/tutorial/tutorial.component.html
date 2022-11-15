@@ -12,7 +12,7 @@
         </div>
         <div class="components">
             <div class="files" *ngIf="(steps$ | async) === 0">
-                <app-files></app-files>
+                <app-files [isTutorial]="true"></app-files>
                 <div class="background-container">
                     <svg>
                         <line x1="0" y1="99%" x2="1%" y2="0%" stroke="black" />
@@ -34,8 +34,7 @@
                 </div>
             </div>
             <div class="pads" *ngIf="(steps$ | async) === 1">
-                <app-pads ></app-pads>
-    
+                <app-pads [isTutorial]="true"></app-pads>
                 <div class="background-container">
                     <svg>
                         <line x1="0" y1="99%" x2="1%" y2="0%" stroke="black" />
@@ -57,13 +56,13 @@
                 </div>
             </div>
             <div class="scales" *ngIf="(steps$ | async) === 2">
-                <app-scales  [isTutorial]="true"></app-scales>
+                <app-scales [isTutorial]="true"></app-scales>
             </div>
         </div>
 
         <div class="info" *ngIf="(steps$ | async) === 0">
             <p>
-                On file panel you can select samples and appoint it on pads. 
+                On files panel you can select samples and appoint it on pads. 
             </p>
             <p>
                 Click on drum. Choose sample and press <mat-icon>filter_list</mat-icon>

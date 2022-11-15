@@ -1,6 +1,6 @@
-import { ChangeDetectionStrategy, Component, OnChanges, OnInit, SimpleChanges } from '@angular/core';
+import { ChangeDetectionStrategy, Component, Input, OnChanges, OnDestroy, OnInit, SimpleChanges } from '@angular/core';
 import { FormControl, FormGroup } from '@angular/forms';
-import { BehaviorSubject, combineLatest, debounceTime, fromEvent, map, Observable, startWith, take } from 'rxjs';
+import { BehaviorSubject, combineLatest, debounceTime, fromEvent, map, Observable, startWith, Subject, take, takeUntil } from 'rxjs';
 import { ScreenControlService } from '../../services/screen-control/screen-control.service';
 import { IPad, IPads, StoreService } from '../../services/store/store.service';
 
@@ -10,7 +10,9 @@ import { IPad, IPads, StoreService } from '../../services/store/store.service';
   styleUrls: ['./pads.component.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush
 })
-export class PadsComponent implements OnInit {
+export class PadsComponent implements OnInit, OnDestroy {
+  @Input('isTutorial') tutorial?: boolean
+
   pads$: Observable<IPad[]> = this.store.padsArr$
 
   currentPad$ = new BehaviorSubject<IPad>({padName: '', src: '', sampleName: '', volume: 1})
@@ -21,14 +23,19 @@ export class PadsComponent implements OnInit {
 
   screen$ = this.screenSize.screenSize$
 
+  destroy$ = new Subject()
+
   constructor(
     private store: StoreService,
     private screenSize: ScreenControlService
   ) { }
+  ngOnDestroy(): void {
+    this.destroy$.next(true)
+  }
 
   ngOnInit(): void {
     
-    combineLatest([fromEvent(window, 'keydown')]).subscribe(([e]) => {
+    combineLatest([fromEvent(window, 'keydown')]).pipe(takeUntil(this.destroy$)).subscribe(([e]) => {
       let event: any = e
       let pads: IPad[] = []
       this.pads$.pipe(take(1)).subscribe(ps => pads = ps)
@@ -71,6 +78,6 @@ export class PadsComponent implements OnInit {
   }
 
   clear() {
-    this.store.clearPads()
+    if(!this.tutorial) this.store.clearPads()
   }
 }

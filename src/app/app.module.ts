@@ -10,11 +10,12 @@ import { HomePageComponent } from './pages/home-page/home-page.component';
   declarations: [
     AppComponent,
     HomePageComponent,
+
   ],
   imports: [
     BrowserModule,
     AppRoutingModule,
-    BrowserAnimationsModule
+    BrowserAnimationsModule,
   ],
   providers: [],
   bootstrap: [AppComponent]
