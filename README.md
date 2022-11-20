@@ -7,3 +7,6 @@ Stack: Angular, rxjs, d3(for vector graphics)
 ## How to start app
 Open project and run script `ng s`
 Navigate to `http://localhost:4200/`
+
+## Demo
+vercel: https://drum-machine-dusky-one.vercel.app/
