@@ -10,3 +10,4 @@ Navigate to `http://localhost:4200/`
 
 ## Demo
 vercel: https://drum-machine-dusky-one.vercel.app/
+(You can have problem with play audio in safari on IOS)
